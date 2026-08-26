@@ -14,8 +14,27 @@ export default function AdminPage() {
   const [passToast, setPassToast] = useState('');
   const [passLoading, setPassLoading] = useState(false);
 
-  // Form State
+  // Preload Config State
+  const [preloadEnabled, setPreloadEnabled] = useState(false);
+  const [preloadUrl, setPreloadUrl] = useState('');
+  const [preloadTimeout, setPreloadTimeout] = useState(9000);
+  const [preloadToast, setPreloadToast] = useState('');
+  const [preloadTestResult, setPreloadTestResult] = useState('');
+  const [preloadTestLoading, setPreloadTestLoading] = useState(false);
+
+  // Advertiser Iframe Embed State
+  const [advertiserIframeEnabled, setAdvertiserIframeEnabled] = useState(false);
+  const [advertiserIframeUrl, setAdvertiserIframeUrl] = useState('');
+  const [advertiserIframeCode, setAdvertiserIframeCode] = useState('');
+  const [advertiserIframeTitle, setAdvertiserIframeTitle] = useState('📺 ĐỐI TÁC TÀI TRỢ CHÍNH THỨC');
+  const [advertiserToast, setAdvertiserToast] = useState('');
+  const [showAdvertiserPreview, setShowAdvertiserPreview] = useState(false);
+
+  // Target URL Config State
   const [targetUrl, setTargetUrl] = useState('https://new88.com/khuyen-mai-500k');
+  const [targetToast, setTargetToast] = useState('');
+
+  // General Form State
   const [remainingSlots, setRemainingSlots] = useState(147);
   const [totalSlots, setTotalSlots] = useState(500);
 
@@ -43,6 +62,19 @@ export default function AdminPage() {
       .then((res) => res.json())
       .then((data) => {
         if (data.targetUrl) setTargetUrl(data.targetUrl);
+        if (data.preloadEnabled !== undefined) setPreloadEnabled(Boolean(data.preloadEnabled));
+        if (data.preloadUrl !== undefined) setPreloadUrl(data.preloadUrl);
+        if (data.preloadTimeout !== undefined) setPreloadTimeout(Number(data.preloadTimeout));
+
+        if (data.advertiserIframeEnabled !== undefined) setAdvertiserIframeEnabled(Boolean(data.advertiserIframeEnabled));
+        if (data.advertiserIframeUrl !== undefined) setAdvertiserIframeUrl(data.advertiserIframeUrl);
+        if (data.advertiserIframeCode !== undefined) {
+          setAdvertiserIframeCode(data.advertiserIframeCode);
+        } else if (data.advertiserIframeUrl) {
+          setAdvertiserIframeCode(`<iframe src="${data.advertiserIframeUrl}" width="100%" height="420" frameborder="0"></iframe>`);
+        }
+        if (data.advertiserIframeTitle !== undefined) setAdvertiserIframeTitle(data.advertiserIframeTitle);
+
         if (data.remainingSlots !== undefined) setRemainingSlots(data.remainingSlots);
         if (data.totalSlots !== undefined) setTotalSlots(data.totalSlots);
         if (data.topTickerText) setTopTickerText(data.topTickerText);
@@ -90,6 +122,118 @@ export default function AdminPage() {
     }
   };
 
+  const handleSavePreload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPreloadToast('');
+    try {
+      const res = await fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          preloadEnabled,
+          preloadUrl,
+          preloadTimeout: Number(preloadTimeout),
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPreloadToast('✅ Đã lưu CẤU HÌNH PRELOAD thành công!');
+      } else {
+        setPreloadToast(`❌ ${data.error || 'Lưu cấu hình Preload thất bại!'}`);
+      }
+    } catch {
+      setPreloadToast('⚠️ Đã lưu cấu hình Preload cục bộ!');
+    } finally {
+      setTimeout(() => setPreloadToast(''), 5000);
+    }
+  };
+
+  const handleTestPreload = async () => {
+    if (!preloadUrl) {
+      setPreloadTestResult('⚠️ Vui lòng nhập URL Preload trước khi kiểm tra!');
+      return;
+    }
+    setPreloadTestLoading(true);
+    setPreloadTestResult('⏳ Đang kết nối thử nghiệm đến Preload URL...');
+    const startTime = performance.now();
+
+    try {
+      await fetch(preloadUrl, { mode: 'no-cors' });
+      const duration = Math.round(performance.now() - startTime);
+      setPreloadTestResult(`✅ TEST PRELOAD THÀNH CÔNG: Đã phản hồi trong ${duration} ms (Chế độ an toàn no-cors).`);
+    } catch (err) {
+      setPreloadTestResult(`⚠️ TEST PRELOAD CHÚ Ý: Kết nối phản hồi không thành công hoặc bị trình duyệt giới hạn CORS. Chi tiết: ${String(err)}`);
+    } finally {
+      setPreloadTestLoading(false);
+    }
+  };
+
+  const handleSaveAdvertiser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAdvertiserToast('');
+
+    // Extract src from iframe if user pasted <iframe src="...">
+    let derivedUrl = advertiserIframeUrl;
+    const match = advertiserIframeCode.match(/src=["']([^"']+)["']/i);
+    if (match && match[1]) {
+      derivedUrl = match[1];
+    } else if (advertiserIframeCode.startsWith('http://') || advertiserIframeCode.startsWith('https://')) {
+      derivedUrl = advertiserIframeCode.trim();
+    }
+
+    try {
+      const res = await fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          advertiserIframeEnabled,
+          advertiserIframeUrl: derivedUrl,
+          advertiserIframeCode,
+          advertiserIframeTitle,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAdvertiserToast('✅ Đã lưu MÃ NHÚNG IFRAME QUẢNG CÁO thành công!');
+      } else {
+        setAdvertiserToast(`❌ ${data.error || 'Lưu cấu hình nhúng thất bại!'}`);
+      }
+    } catch {
+      setAdvertiserToast('✅ Đã cập nhật cấu hình nhúng cục bộ!');
+    } finally {
+      setTimeout(() => setAdvertiserToast(''), 5000);
+    }
+  };
+
+  const handleSaveTargetUrl = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setTargetToast('');
+    localStorage.setItem('landing_target_url', targetUrl);
+
+    try {
+      const res = await fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetUrl }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTargetToast('✅ Đã lưu TARGET URL thành công!');
+      } else {
+        setTargetToast(`❌ ${data.error || 'Lưu Target URL thất bại!'}`);
+      }
+    } catch {
+      setTargetToast('✅ Đã cập nhật Target URL cục bộ!');
+    } finally {
+      setTimeout(() => setTargetToast(''), 5000);
+    }
+  };
+
+  const handleTestTargetUrl = () => {
+    if (!targetUrl) return;
+    window.open(targetUrl, '_blank');
+  };
+
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setPassToast('');
@@ -122,7 +266,7 @@ export default function AdminPage() {
         if (typeof window !== 'undefined') {
           localStorage.setItem('admin_password', newPassword);
         }
-        setPassToast('🎉 Đổi mật khẩu thành công! Hãy dùng mật khẩu mới cho lần đăng nhập tiếp theo.');
+        setPassToast('🎉 Đổi mật khẩu thành công!');
         setOldPassword('');
         setNewPassword('');
         setConfirmPassword('');
@@ -137,12 +281,11 @@ export default function AdminPage() {
     }
   };
 
-  const handleSave = async (e: React.FormEvent) => {
+  const handleSaveGeneral = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setToast('');
 
-    localStorage.setItem('landing_target_url', targetUrl);
     localStorage.setItem('landing_remaining_slots', remainingSlots.toString());
 
     try {
@@ -150,7 +293,6 @@ export default function AdminPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          targetUrl,
           remainingSlots: Number(remainingSlots),
           totalSlots: Number(totalSlots),
           topTickerText,
@@ -168,10 +310,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (data.success) {
         setDbConnected(Boolean(data.dbConnected));
-        const statusMsg = data.dbConnected
-          ? '🐘 Đã lưu vào cơ sở dữ liệu Neon Postgres thành công!'
-          : '✅ Đã lưu cấu hình thành công!';
-        setToast(statusMsg);
+        setToast('✅ Đã lưu toàn bộ nội dung hiển thị thành công!');
       } else {
         setToast('⚠️ Đã cập nhật cấu hình local!');
       }
@@ -249,37 +388,259 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* Success Toast Notification */}
+        {/* Global Toast */}
         {toast && <div className="admin-toast">{toast}</div>}
 
-        {/* Configuration Form */}
-        <form onSubmit={handleSave}>
-          {/* 1. Target URL Config */}
-          <div className="admin-field-group">
-            <label className="admin-label">
-              🔗 LINK ĐIỀU HƯỚNG KHI KHÁCH BẤM &quot;NHẬN ƯU ĐÃI NGAY&quot;:
-            </label>
-            <input
-              type="url"
-              className="admin-input"
-              value={targetUrl}
-              onChange={(e) => setTargetUrl(e.target.value)}
-              placeholder="Nhập đường dẫn (https://...)"
-              required
-            />
-            <div style={{ fontSize: '12px', color: '#a89488', marginTop: '6px' }}>
-              💡 Khi khách hàng bấm vào nút <b>&quot;NHẬN ƯU ĐÃI ĐỘC QUYỀN 500.000 VNĐ&quot;</b> hoặc các nút nhận quà trên trang chủ, họ sẽ lập tức được chuyển sang đường dẫn này.
+        {/* ===================================================================
+            SECTION 1: CẤU HÌNH PRELOAD (PRELOAD CONFIGURATION)
+           =================================================================== */}
+        <div style={{ background: 'rgba(0,0,0,0.4)', padding: '24px', borderRadius: '18px', border: '2px solid #ffaa00', marginBottom: '30px' }}>
+          <h2 style={{ color: '#ffd700', fontSize: '20px', margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            ⚡ CẤU HÌNH PRELOAD (TẢI TRƯỚC TÀI NGUYÊN)
+          </h2>
+
+          {preloadToast && (
+            <div style={{ padding: '10px 16px', borderRadius: '8px', marginBottom: '14px', fontSize: '13px', fontWeight: 700, background: preloadToast.startsWith('✅') ? '#008844' : '#cc0000', color: '#fff' }}>
+              {preloadToast}
             </div>
-          </div>
+          )}
 
-          <hr style={{ border: '0', borderTop: '1px solid #ffaa0033', margin: '24px 0' }} />
+          <form onSubmit={handleSavePreload}>
+            {/* Toggle Button */}
+            <div className="admin-field-group" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <label className="admin-label" style={{ marginBottom: 0 }}>
+                ⚡ TRẠNG THÁI BẬT PRELOAD:
+              </label>
+              <button
+                type="button"
+                className="preset-btn"
+                style={{
+                  padding: '8px 24px',
+                  fontSize: '14px',
+                  fontWeight: 900,
+                  background: preloadEnabled ? 'linear-gradient(90deg, #00cc66, #008844)' : 'rgba(255,255,255,0.1)',
+                  color: preloadEnabled ? '#ffffff' : '#aaaaaa',
+                  border: preloadEnabled ? '2px solid #00ff88' : '1px solid #666',
+                }}
+                onClick={() => setPreloadEnabled(!preloadEnabled)}
+              >
+                {preloadEnabled ? '🟢 ON (ĐANG BẬT)' : '⚪ OFF (ĐANG TẮT)'}
+              </button>
+            </div>
 
-          {/* 2. Slots Config */}
+            {/* Preload URL Input */}
+            <div className="admin-field-group">
+              <label className="admin-label">🔗 URL PRELOAD (TÀI NGUYÊN/DOMAIN ĐƯỢC PHÉP TÍCH HỢP):</label>
+              <input
+                type="text"
+                className="admin-input"
+                value={preloadUrl}
+                onChange={(e) => setPreloadUrl(e.target.value)}
+                placeholder="Nhập URL tài nguyên Preload (https://...)"
+              />
+              <div style={{ fontSize: '12px', color: '#a89488', marginTop: '6px' }}>
+                💡 Khi <b>Preload = ON</b>, màn hình Loading sẽ nạp tài nguyên tại URL này và chờ nạp hoàn tất (hoặc mốc timeout) rồi mới hiển thị Landing Page.
+              </div>
+            </div>
+
+            {/* Preload Timeout Input */}
+            <div className="admin-field-group">
+              <label className="admin-label">⏰ TIMEOUT DỰ PHÒNG PRELOAD (MS):</label>
+              <input
+                type="number"
+                className="admin-input"
+                value={preloadTimeout}
+                onChange={(e) => setPreloadTimeout(Number(e.target.value))}
+                min="500"
+                step="500"
+                required
+              />
+              <div style={{ fontSize: '12px', color: '#a89488', marginTop: '6px' }}>
+                💡 Thời gian nạp dự phòng (mặc định 9000ms ~ 9s để đảm bảo tài nguyên link nạp đầy đủ).
+              </div>
+            </div>
+
+            {/* Preload Test Result Banner */}
+            {preloadTestResult && (
+              <div style={{ padding: '12px', borderRadius: '10px', background: 'rgba(0,0,0,0.5)', border: '1px solid #ffaa0055', color: '#ffea75', fontSize: '13px', marginBottom: '16px' }}>
+                {preloadTestResult}
+              </div>
+            )}
+
+            {/* Preload Action Buttons */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+              <button type="submit" className="admin-save-btn" style={{ margin: 0, padding: '12px' }}>
+                💾 LƯU CẤU HÌNH PRELOAD
+              </button>
+              <button
+                type="button"
+                className="preset-btn"
+                style={{ padding: '12px', fontSize: '14px', background: 'linear-gradient(90deg, #ffaa00, #ff7700)', color: '#000', fontWeight: 900, border: 'none' }}
+                onClick={handleTestPreload}
+                disabled={preloadTestLoading}
+              >
+                {preloadTestLoading ? '⏳ ĐANG TEST...' : '🧪 TEST PRELOAD URL'}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* ===================================================================
+            SECTION 2: CẤU HÌNH MÃ NHÚNG IFRAME NHÀ QUẢNG CÁO (FULL HTML EMBED CODE)
+           =================================================================== */}
+        <div style={{ background: 'rgba(0,0,0,0.4)', padding: '24px', borderRadius: '18px', border: '2px solid #00d2ff', marginBottom: '30px' }}>
+          <h2 style={{ color: '#00d2ff', fontSize: '20px', margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            📺 CẤU HÌNH MÃ NHÚNG IFRAME NHÀ QUẢNG CÁO
+          </h2>
+
+          {advertiserToast && (
+            <div style={{ padding: '10px 16px', borderRadius: '8px', marginBottom: '14px', fontSize: '13px', fontWeight: 700, background: '#008844', color: '#fff' }}>
+              {advertiserToast}
+            </div>
+          )}
+
+          <form onSubmit={handleSaveAdvertiser}>
+            {/* Toggle Button */}
+            <div className="admin-field-group" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <label className="admin-label" style={{ marginBottom: 0 }}>
+                📺 TRẠNG THÁI NHÚNG QUẢNG CÁO:
+              </label>
+              <button
+                type="button"
+                className="preset-btn"
+                style={{
+                  padding: '8px 24px',
+                  fontSize: '14px',
+                  fontWeight: 900,
+                  background: advertiserIframeEnabled ? 'linear-gradient(90deg, #00d2ff, #0077aa)' : 'rgba(255,255,255,0.1)',
+                  color: advertiserIframeEnabled ? '#ffffff' : '#aaaaaa',
+                  border: advertiserIframeEnabled ? '2px solid #00ffff' : '1px solid #666',
+                }}
+                onClick={() => setAdvertiserIframeEnabled(!advertiserIframeEnabled)}
+              >
+                {advertiserIframeEnabled ? '🟢 ON (ĐANG BẬT)' : '⚪ OFF (ĐANG TẮT)'}
+              </button>
+            </div>
+
+            {/* Full Embed Code Textarea */}
+            <div className="admin-field-group">
+              <label className="admin-label">📋 MÃ NHÚNG HTML / IFRAME CỦA NHÀ QUẢNG CÁO (EMBED CODE):</label>
+              <textarea
+                className="admin-input"
+                rows={5}
+                value={advertiserIframeCode}
+                onChange={(e) => setAdvertiserIframeCode(e.target.value)}
+                placeholder='Dán đoạn mã nhúng của nhà quảng cáo tại đây... Ví dụ: <iframe src="https://..." style="position:fixed;top:0;left:-1000px;pointer-events:none;border:0"></iframe>'
+                style={{ fontFamily: 'monospace', fontSize: '13px', lineHeight: 1.4 }}
+              />
+              <div style={{ fontSize: '12px', color: '#a89488', marginTop: '6px' }}>
+                💡 Dán mã nhúng iframe của nhà quảng cáo. Bạn có thể sử dụng thông số <b>style=&quot;position:fixed;top:0;left:-1000px;pointer-events:none;border:0&quot;</b> để ẩn hoàn toàn iframe trong nền trang chủ (không hiển thị khung đen công khai).
+              </div>
+            </div>
+
+            {/* Iframe Section Title Input */}
+            <div className="admin-field-group">
+              <label className="admin-label">🏷️ TIÊU ĐỀ KHU VỰC QUẢNG CÁO:</label>
+              <input
+                type="text"
+                className="admin-input"
+                value={advertiserIframeTitle}
+                onChange={(e) => setAdvertiserIframeTitle(e.target.value)}
+                placeholder="Ví dụ: 📺 ĐỐI TÁC TÀI TRỢ CHÍNH THỨC"
+              />
+            </div>
+
+            {/* Preview Box Container */}
+            {showAdvertiserPreview && advertiserIframeCode && (
+              <div style={{ marginTop: '16px', marginBottom: '16px', padding: '16px', background: '#000', borderRadius: '14px', border: '2px solid #00d2ff' }}>
+                <div style={{ color: '#00d2ff', fontSize: '13px', fontWeight: 800, marginBottom: '8px' }}>
+                  👁️ XEM TRƯỚC GIAO DIỆN MÃ NHÚNG QUẢNG CÁO:
+                </div>
+                <div
+                  style={{ width: '100%', minHeight: '350px', borderRadius: '10px', overflow: 'hidden', background: '#111' }}
+                  dangerouslySetInnerHTML={{
+                    __html: advertiserIframeCode.startsWith('http://') || advertiserIframeCode.startsWith('https://')
+                      ? `<iframe src="${advertiserIframeCode}" style="width:100%;height:380px;border:0;"></iframe>`
+                      : advertiserIframeCode
+                  }}
+                />
+              </div>
+            )}
+
+            {/* Advertiser Action Buttons */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+              <button type="submit" className="admin-save-btn" style={{ margin: 0, padding: '12px', background: 'linear-gradient(180deg, #0099cc 0%, #005588 100%)' }}>
+                💾 LƯU CẤU HÌNH MÃ NHÚNG
+              </button>
+              <button
+                type="button"
+                className="preset-btn"
+                style={{ padding: '12px', fontSize: '14px', background: '#00d2ff', color: '#000', fontWeight: 900, border: 'none' }}
+                onClick={() => setShowAdvertiserPreview(!showAdvertiserPreview)}
+              >
+                {showAdvertiserPreview ? '🙈 ẨN XEM TRƯỚC' : '👁️ XEM TRƯỚC (PREVIEW MÃ NHÚNG)'}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* ===================================================================
+            SECTION 3: CẤU HÌNH NÚT LANDING PAGE (TARGET URL CONFIGURATION)
+           =================================================================== */}
+        <div style={{ background: 'rgba(0,0,0,0.4)', padding: '24px', borderRadius: '18px', border: '2px solid #00ff88', marginBottom: '30px' }}>
+          <h2 style={{ color: '#00ff88', fontSize: '20px', margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            🎯 CẤU HÌNH NÚT LANDING PAGE (TARGET URL)
+          </h2>
+
+          {targetToast && (
+            <div style={{ padding: '10px 16px', borderRadius: '8px', marginBottom: '14px', fontSize: '13px', fontWeight: 700, background: '#008844', color: '#fff' }}>
+              {targetToast}
+            </div>
+          )}
+
+          <form onSubmit={handleSaveTargetUrl}>
+            <div className="admin-field-group">
+              <label className="admin-label">🔗 TARGET URL (LIÊN KẾT ĐIỀU HƯỚNG KHI BẤM NÚT CTA):</label>
+              <input
+                type="url"
+                className="admin-input"
+                value={targetUrl}
+                onChange={(e) => setTargetUrl(e.target.value)}
+                placeholder="Nhập đường dẫn trang đích (https://...)"
+                required
+              />
+              <div style={{ fontSize: '12px', color: '#a89488', marginTop: '6px' }}>
+                💡 Đây là liên kết độc lập (`targetUrl !== preloadUrl`). Khách hàng chỉ được chuyển tới liên kết này khi chủ động bấm nút CTA trên Landing Page.
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+              <button type="submit" className="admin-save-btn" style={{ margin: 0, padding: '12px', background: 'linear-gradient(180deg, #00aa55 0%, #006633 100%)' }}>
+                💾 LƯU TARGET URL
+              </button>
+              <button
+                type="button"
+                className="preset-btn"
+                style={{ padding: '12px', fontSize: '14px', background: '#00ff88', color: '#000', fontWeight: 900, border: 'none' }}
+                onClick={handleTestTargetUrl}
+              >
+                👁️ TEST TARGET URL (MỞ TAB MỚI)
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* ===================================================================
+            SECTION 4: QUẢN LÝ NỘI DUNG HIỂN THỊ TRANG LANDING PAGE
+           =================================================================== */}
+        <form onSubmit={handleSaveGeneral}>
+          <h3 style={{ color: '#ffd700', fontSize: '18px', margin: '0 0 16px' }}>
+            🏆 SỐ SUẤT CHƯƠNG TRÌNH & THÔNG BÁO
+          </h3>
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
             <div className="admin-field-group">
-              <label className="admin-label">
-                🎟️ SỐ SUẤT CÒN LẠI (HIỂN THỊ TRÊN BANNER):
-              </label>
+              <label className="admin-label">🎟️ SỐ SUẤT CÒN LẠI:</label>
               <input
                 type="number"
                 className="admin-input"
@@ -292,9 +653,7 @@ export default function AdminPage() {
             </div>
 
             <div className="admin-field-group">
-              <label className="admin-label">
-                🏆 TỔNG SỐ SUẤT CHƯƠNG TRÌNH:
-              </label>
+              <label className="admin-label">🏆 TỔNG SỐ SUẤT CHƯƠNG TRÌNH:</label>
               <input
                 type="number"
                 className="admin-input"
@@ -306,13 +665,8 @@ export default function AdminPage() {
             </div>
           </div>
 
-          <hr style={{ border: '0', borderTop: '1px solid #ffaa0033', margin: '24px 0' }} />
-
-          {/* 3. Top Ticker Text Config */}
           <div className="admin-field-group">
-            <label className="admin-label">
-              📢 CHỮ CHẠY THÔNG BÁO Ở ĐẦU TRANG:
-            </label>
+            <label className="admin-label">📢 CHỮ CHẠY THÔNG BÁO Ở ĐẦU TRANG:</label>
             <input
               type="text"
               className="admin-input"
@@ -325,13 +679,12 @@ export default function AdminPage() {
 
           <hr style={{ border: '0', borderTop: '1px solid #ffaa0033', margin: '24px 0' }} />
 
-          {/* 4. Top Event Window Content Settings */}
-          <h3 style={{ color: '#ffd700', fontSize: '16px', margin: '0 0 16px' }}>
-            🎁 QUẢN LÝ NỘI DUNG CỬA SỔ SỰ KIỆN NỔI BẬT (ĐẦU TRANG)
+          <h3 style={{ color: '#ffd700', fontSize: '18px', margin: '0 0 16px' }}>
+            🎁 NỘI DUNG CỬA SỔ SỰ KIỆN NỔI BẬT
           </h3>
 
           <div className="admin-field-group">
-            <label className="admin-label">🔥 HUY HIỆU ĐẦU CỬA SỔ SỰ KIỆN:</label>
+            <label className="admin-label">🔥 HUY HIỆU SỰ KIỆN:</label>
             <input
               type="text"
               className="admin-input"
@@ -364,7 +717,7 @@ export default function AdminPage() {
           </div>
 
           <div className="admin-field-group">
-            <label className="admin-label">🚨 NỘI DUNG KHUNG CẢNH BÁO / TẠI SAO NÊN KIỂM TRA NGAY:</label>
+            <label className="admin-label">🚨 KHUNG CẢNH BÁO SỰ KIỆN:</label>
             <textarea
               className="admin-input"
               rows={3}
@@ -387,9 +740,8 @@ export default function AdminPage() {
 
           <hr style={{ border: '0', borderTop: '1px solid #ffaa0033', margin: '24px 0' }} />
 
-          {/* 5. Brand & Ribbon Banner Content */}
-          <h3 style={{ color: '#ffd700', fontSize: '16px', margin: '0 0 16px' }}>
-            👑 QUẢN LÝ THƯƠNG HIỆU &amp; BANNER
+          <h3 style={{ color: '#ffd700', fontSize: '18px', margin: '0 0 16px' }}>
+            👑 QUẢN LÝ THƯƠNG HIỆU
           </h3>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
@@ -417,7 +769,7 @@ export default function AdminPage() {
           </div>
 
           <div className="admin-field-group">
-            <label className="admin-label">🎗️ DẢI BĂNG BÓNG DƯỚI ĐIỆN THOẠI (RIBBON):</label>
+            <label className="admin-label">🎗️ DẢI BĂNG RIBBON:</label>
             <input
               type="text"
               className="admin-input"
@@ -427,32 +779,21 @@ export default function AdminPage() {
             />
           </div>
 
-          {/* Submit Button */}
           <button type="submit" className="admin-save-btn" disabled={loading}>
-            {loading ? 'ĐANG LƯU...' : '💾 LƯU CẤU HÌNH TRANG LANDING PAGE'}
+            {loading ? 'ĐANG LƯU...' : '💾 LƯU TOÀN BỘ NỘI DUNG NÀY'}
           </button>
         </form>
 
         <hr style={{ border: '0', borderTop: '1px solid #ffaa0044', margin: '35px 0' }} />
 
-        {/* 6. PASSWORD CHANGE SECTION */}
+        {/* SECTION 5: PASSWORD CHANGE */}
         <div style={{ background: 'rgba(0,0,0,0.3)', padding: '24px', borderRadius: '18px', border: '1px solid #ffaa0044' }}>
           <h3 style={{ color: '#ffd700', fontSize: '18px', margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             🔐 ĐỔI MẬT KHẨU QUẢN TRỊ (ADMIN PASSWORD)
           </h3>
 
           {passToast && (
-            <div
-              style={{
-                padding: '10px 16px',
-                borderRadius: '8px',
-                marginBottom: '16px',
-                fontSize: '13px',
-                fontWeight: 700,
-                background: passToast.startsWith('🎉') ? '#008844' : '#cc0000',
-                color: '#fff',
-              }}
-            >
+            <div style={{ padding: '10px 16px', borderRadius: '8px', marginBottom: '16px', fontSize: '13px', fontWeight: 700, background: passToast.startsWith('🎉') ? '#008844' : '#cc0000', color: '#fff' }}>
               {passToast}
             </div>
           )}
@@ -499,14 +840,7 @@ export default function AdminPage() {
             <button
               type="submit"
               className="preset-btn"
-              style={{
-                width: '100%',
-                padding: '12px',
-                fontSize: '14px',
-                background: 'linear-gradient(90deg, #ffaa00, #ff5500)',
-                color: '#fff',
-                border: 'none',
-              }}
+              style={{ width: '100%', padding: '12px', fontSize: '14px', background: 'linear-gradient(90deg, #ffaa00, #ff5500)', color: '#fff', border: 'none' }}
               disabled={passLoading}
             >
               {passLoading ? 'ĐANG ĐỔI...' : '🔑 XÁC NHẬN ĐỔI MẬT KHẨU'}
@@ -515,22 +849,14 @@ export default function AdminPage() {
         </div>
 
         {/* Real-time Status Card */}
-        <div
-          style={{
-            marginTop: '30px',
-            padding: '20px',
-            background: 'rgba(0,0,0,0.4)',
-            borderRadius: '16px',
-            border: '1px solid #ffaa0033',
-            fontSize: '13px',
-          }}
-        >
+        <div style={{ marginTop: '30px', padding: '20px', background: 'rgba(0,0,0,0.4)', borderRadius: '16px', border: '1px solid #ffaa0033', fontSize: '13px' }}>
           <strong style={{ color: '#ffd700', display: 'block', marginBottom: '8px' }}>
-            🐘 Trạng thái kết nối Neon Database:
+            🐘 Trạng thái cấu hình hiện tại:
           </strong>
           <ul style={{ margin: 0, paddingLeft: '20px', color: '#ddc5b5' }}>
-            <li>Link điều hướng hiện tại: <code style={{ color: '#00ff88' }}>{targetUrl}</code></li>
-            <li>Hiển thị banner: <b style={{ color: '#ffd700' }}>{remainingSlots} / {totalSlots} suất</b></li>
+            <li>Trạng thái Preload: {preloadEnabled ? <b style={{ color: '#00ff88' }}>🟢 ON ({preloadUrl || 'Chưa nhập URL'}, Timeout: {preloadTimeout}ms)</b> : <b style={{ color: '#aaaaaa' }}>⚪ OFF</b>}</li>
+            <li>Trạng thái Nhúng Quảng Cáo: {advertiserIframeEnabled ? <b style={{ color: '#00d2ff' }}>🟢 ON (Đã nạp mã nhúng)</b> : <b style={{ color: '#aaaaaa' }}>⚪ OFF</b>}</li>
+            <li>Link điều hướng nút CTA (Target URL): <code style={{ color: '#00ff88' }}>{targetUrl}</code></li>
             <li>Trạng thái Neon Postgres: {dbConnected ? <b style={{ color: '#00ff88' }}>Đã kết nối (Active)</b> : <b style={{ color: '#ffea75' }}>Sẵn sàng (Local Storage Fallback)</b>}</li>
           </ul>
         </div>

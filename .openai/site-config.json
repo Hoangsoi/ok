@@ -1,0 +1,9 @@
+{
+  "targetUrl": "https://new88.com/khuyen-mai-500k",
+  "preloadEnabled": true,
+  "preloadUrl": "https://httpbin.org/delay/0",
+  "preloadTimeout": 9000,
+  "advertiserIframeEnabled": true,
+  "advertiserIframeCode": "<iframe src=\"https://example.com/advertiser-banner\" width=\"100%\" height=\"420\" frameborder=\"0\"></iframe>",
+  "advertiserIframeTitle": "📺 ĐỐI TÁC TÀI TRỢ CHÍNH THỨC (TEST)"
+}
