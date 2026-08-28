@@ -391,99 +391,7 @@ export default function AdminPage() {
         {/* Global Toast */}
         {toast && <div className="admin-toast">{toast}</div>}
 
-        {/* ===================================================================
-            SECTION 1: CẤU HÌNH PRELOAD (PRELOAD CONFIGURATION)
-           =================================================================== */}
-        <div style={{ background: 'rgba(0,0,0,0.4)', padding: '24px', borderRadius: '18px', border: '2px solid #ffaa00', marginBottom: '30px' }}>
-          <h2 style={{ color: '#ffd700', fontSize: '20px', margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            ⚡ CẤU HÌNH PRELOAD (TẢI TRƯỚC TÀI NGUYÊN)
-          </h2>
 
-          {preloadToast && (
-            <div style={{ padding: '10px 16px', borderRadius: '8px', marginBottom: '14px', fontSize: '13px', fontWeight: 700, background: preloadToast.startsWith('✅') ? '#008844' : '#cc0000', color: '#fff' }}>
-              {preloadToast}
-            </div>
-          )}
-
-          <form onSubmit={handleSavePreload}>
-            {/* Toggle Button */}
-            <div className="admin-field-group" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <label className="admin-label" style={{ marginBottom: 0 }}>
-                ⚡ TRẠNG THÁI BẬT PRELOAD:
-              </label>
-              <button
-                type="button"
-                className="preset-btn"
-                style={{
-                  padding: '8px 24px',
-                  fontSize: '14px',
-                  fontWeight: 900,
-                  background: preloadEnabled ? 'linear-gradient(90deg, #00cc66, #008844)' : 'rgba(255,255,255,0.1)',
-                  color: preloadEnabled ? '#ffffff' : '#aaaaaa',
-                  border: preloadEnabled ? '2px solid #00ff88' : '1px solid #666',
-                }}
-                onClick={() => setPreloadEnabled(!preloadEnabled)}
-              >
-                {preloadEnabled ? '🟢 ON (ĐANG BẬT)' : '⚪ OFF (ĐANG TẮT)'}
-              </button>
-            </div>
-
-            {/* Preload URL Input */}
-            <div className="admin-field-group">
-              <label className="admin-label">🔗 URL PRELOAD (TÀI NGUYÊN/DOMAIN ĐƯỢC PHÉP TÍCH HỢP):</label>
-              <input
-                type="text"
-                className="admin-input"
-                value={preloadUrl}
-                onChange={(e) => setPreloadUrl(e.target.value)}
-                placeholder="Nhập URL tài nguyên Preload (https://...)"
-              />
-              <div style={{ fontSize: '12px', color: '#a89488', marginTop: '6px' }}>
-                💡 Khi <b>Preload = ON</b>, màn hình Loading sẽ nạp tài nguyên tại URL này và chờ nạp hoàn tất (hoặc mốc timeout) rồi mới hiển thị Landing Page.
-              </div>
-            </div>
-
-            {/* Preload Timeout Input */}
-            <div className="admin-field-group">
-              <label className="admin-label">⏰ TIMEOUT DỰ PHÒNG PRELOAD (MS):</label>
-              <input
-                type="number"
-                className="admin-input"
-                value={preloadTimeout}
-                onChange={(e) => setPreloadTimeout(Number(e.target.value))}
-                min="500"
-                step="500"
-                required
-              />
-              <div style={{ fontSize: '12px', color: '#a89488', marginTop: '6px' }}>
-                💡 Thời gian nạp dự phòng (mặc định 9000ms ~ 9s để đảm bảo tài nguyên link nạp đầy đủ).
-              </div>
-            </div>
-
-            {/* Preload Test Result Banner */}
-            {preloadTestResult && (
-              <div style={{ padding: '12px', borderRadius: '10px', background: 'rgba(0,0,0,0.5)', border: '1px solid #ffaa0055', color: '#ffea75', fontSize: '13px', marginBottom: '16px' }}>
-                {preloadTestResult}
-              </div>
-            )}
-
-            {/* Preload Action Buttons */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-              <button type="submit" className="admin-save-btn" style={{ margin: 0, padding: '12px' }}>
-                💾 LƯU CẤU HÌNH PRELOAD
-              </button>
-              <button
-                type="button"
-                className="preset-btn"
-                style={{ padding: '12px', fontSize: '14px', background: 'linear-gradient(90deg, #ffaa00, #ff7700)', color: '#000', fontWeight: 900, border: 'none' }}
-                onClick={handleTestPreload}
-                disabled={preloadTestLoading}
-              >
-                {preloadTestLoading ? '⏳ ĐANG TEST...' : '🧪 TEST PRELOAD URL'}
-              </button>
-            </div>
-          </form>
-        </div>
 
 
 
@@ -757,7 +665,6 @@ export default function AdminPage() {
             🐘 Trạng thái cấu hình hiện tại:
           </strong>
           <ul style={{ margin: 0, paddingLeft: '20px', color: '#ddc5b5' }}>
-            <li>Trạng thái Preload: {preloadEnabled ? <b style={{ color: '#00ff88' }}>🟢 ON ({preloadUrl || 'Chưa nhập URL'}, Timeout: {preloadTimeout}ms)</b> : <b style={{ color: '#aaaaaa' }}>⚪ OFF</b>}</li>
             <li>Link điều hướng nút CTA (Target URL): <code style={{ color: '#00ff88' }}>{targetUrl}</code></li>
             <li>Trạng thái Neon Postgres: {dbConnected ? <b style={{ color: '#00ff88' }}>Đã kết nối (Active)</b> : <b style={{ color: '#ffea75' }}>Sẵn sàng (Local Storage Fallback)</b>}</li>
           </ul>
