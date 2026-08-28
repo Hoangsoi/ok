@@ -186,7 +186,7 @@ export default function Home() {
       if (configData.ribbonText) setRibbonText(String(configData.ribbonText));
 
       setLoadProgress(10);
-      setLoadStatusText('Đang nạp dữ liệu iframe entry...');
+      setLoadStatusText('Đang nạp dữ liệu hệ thống...');
 
       // 1. Chờ iframe trong entry nạp xong (hoặc fallback tối đa 10 giây nếu mạng chậm/bị chặn)
       const iframeLoadPromise = new Promise<void>((resolve) => {
@@ -233,7 +233,7 @@ export default function Home() {
         const secondsLeft = Math.max(0, Math.ceil((TEN_SECONDS_MS - elapsed) / 1000));
 
         setLoadProgress(currentProgress);
-        setLoadStatusText(`Iframe đã nạp xong! Đang chuyển hướng vào trang chủ (${secondsLeft}s)...`);
+        setLoadStatusText(`Đang chuyển hướng vào trang chủ (${secondsLeft}s)...`);
       }, 150);
 
       await new Promise((resolve) => setTimeout(resolve, TEN_SECONDS_MS));
