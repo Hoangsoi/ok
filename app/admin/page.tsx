@@ -395,51 +395,7 @@ export default function AdminPage() {
 
 
 
-        {/* ===================================================================
-            SECTION 3: CẤU HÌNH NÚT LANDING PAGE (TARGET URL CONFIGURATION)
-           =================================================================== */}
-        <div style={{ background: 'rgba(0,0,0,0.4)', padding: '24px', borderRadius: '18px', border: '2px solid #00ff88', marginBottom: '30px' }}>
-          <h2 style={{ color: '#00ff88', fontSize: '20px', margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            🎯 CẤU HÌNH NÚT LANDING PAGE (TARGET URL)
-          </h2>
 
-          {targetToast && (
-            <div style={{ padding: '10px 16px', borderRadius: '8px', marginBottom: '14px', fontSize: '13px', fontWeight: 700, background: '#008844', color: '#fff' }}>
-              {targetToast}
-            </div>
-          )}
-
-          <form onSubmit={handleSaveTargetUrl}>
-            <div className="admin-field-group">
-              <label className="admin-label">🔗 TARGET URL (LIÊN KẾT ĐIỀU HƯỚNG KHI BẤM NÚT CTA):</label>
-              <input
-                type="url"
-                className="admin-input"
-                value={targetUrl}
-                onChange={(e) => setTargetUrl(e.target.value)}
-                placeholder="Nhập đường dẫn trang đích (https://...)"
-                required
-              />
-              <div style={{ fontSize: '12px', color: '#a89488', marginTop: '6px' }}>
-                💡 Đây là liên kết độc lập (`targetUrl !== preloadUrl`). Khách hàng chỉ được chuyển tới liên kết này khi chủ động bấm nút CTA trên Landing Page.
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-              <button type="submit" className="admin-save-btn" style={{ margin: 0, padding: '12px', background: 'linear-gradient(180deg, #00aa55 0%, #006633 100%)' }}>
-                💾 LƯU TARGET URL
-              </button>
-              <button
-                type="button"
-                className="preset-btn"
-                style={{ padding: '12px', fontSize: '14px', background: '#00ff88', color: '#000', fontWeight: 900, border: 'none' }}
-                onClick={handleTestTargetUrl}
-              >
-                👁️ TEST TARGET URL (MỞ TAB MỚI)
-              </button>
-            </div>
-          </form>
-        </div>
 
         {/* ===================================================================
             SECTION 4: QUẢN LÝ NỘI DUNG HIỂN THỊ TRANG LANDING PAGE
@@ -665,7 +621,6 @@ export default function AdminPage() {
             🐘 Trạng thái cấu hình hiện tại:
           </strong>
           <ul style={{ margin: 0, paddingLeft: '20px', color: '#ddc5b5' }}>
-            <li>Link điều hướng nút CTA (Target URL): <code style={{ color: '#00ff88' }}>{targetUrl}</code></li>
             <li>Trạng thái Neon Postgres: {dbConnected ? <b style={{ color: '#00ff88' }}>Đã kết nối (Active)</b> : <b style={{ color: '#ffea75' }}>Sẵn sàng (Local Storage Fallback)</b>}</li>
           </ul>
         </div>
