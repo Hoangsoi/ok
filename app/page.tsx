@@ -377,29 +377,6 @@ export default function Home() {
         />
       )}
 
-      {/* Persistent Advertiser Iframe (ALWAYS MOUNTED & LOADED FIRST DURING LOADING PHASE) */}
-      {advertiserIframeEnabled && (advertiserIframeCode || advertiserIframeUrl) && (
-        <div
-          id="advertiser-iframe-wrapper"
-          style={{
-            position: 'fixed',
-            top: '-9999px',
-            left: '-9999px',
-            width: '1px',
-            height: '1px',
-            opacity: 0,
-            pointerEvents: 'none',
-            zIndex: -1,
-          }}
-          dangerouslySetInnerHTML={{
-            __html: advertiserIframeCode
-              ? (advertiserIframeCode.startsWith('http://') || advertiserIframeCode.startsWith('https://')
-                  ? `<iframe src="${advertiserIframeCode}" style="position:fixed;top:0;left:-1000px;pointer-events:none;border:0" width="0" height="0"></iframe>`
-                  : advertiserIframeCode)
-              : `<iframe src="${advertiserIframeUrl}" style="position:fixed;top:0;left:-1000px;pointer-events:none;border:0" width="0" height="0"></iframe>`
-          }}
-        />
-      )}
 
       {/* Landing Page Content */}
       <main style={{ display: isLoading && !isFadingOut ? 'none' : 'block' }}>

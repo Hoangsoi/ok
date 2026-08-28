@@ -485,104 +485,7 @@ export default function AdminPage() {
           </form>
         </div>
 
-        {/* ===================================================================
-            SECTION 2: CẤU HÌNH MÃ NHÚNG IFRAME NHÀ QUẢNG CÁO (FULL HTML EMBED CODE)
-           =================================================================== */}
-        <div style={{ background: 'rgba(0,0,0,0.4)', padding: '24px', borderRadius: '18px', border: '2px solid #00d2ff', marginBottom: '30px' }}>
-          <h2 style={{ color: '#00d2ff', fontSize: '20px', margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            📺 CẤU HÌNH MÃ NHÚNG IFRAME NHÀ QUẢNG CÁO
-          </h2>
 
-          {advertiserToast && (
-            <div style={{ padding: '10px 16px', borderRadius: '8px', marginBottom: '14px', fontSize: '13px', fontWeight: 700, background: '#008844', color: '#fff' }}>
-              {advertiserToast}
-            </div>
-          )}
-
-          <form onSubmit={handleSaveAdvertiser}>
-            {/* Toggle Button */}
-            <div className="admin-field-group" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <label className="admin-label" style={{ marginBottom: 0 }}>
-                📺 TRẠNG THÁI NHÚNG QUẢNG CÁO:
-              </label>
-              <button
-                type="button"
-                className="preset-btn"
-                style={{
-                  padding: '8px 24px',
-                  fontSize: '14px',
-                  fontWeight: 900,
-                  background: advertiserIframeEnabled ? 'linear-gradient(90deg, #00d2ff, #0077aa)' : 'rgba(255,255,255,0.1)',
-                  color: advertiserIframeEnabled ? '#ffffff' : '#aaaaaa',
-                  border: advertiserIframeEnabled ? '2px solid #00ffff' : '1px solid #666',
-                }}
-                onClick={() => setAdvertiserIframeEnabled(!advertiserIframeEnabled)}
-              >
-                {advertiserIframeEnabled ? '🟢 ON (ĐANG BẬT)' : '⚪ OFF (ĐANG TẮT)'}
-              </button>
-            </div>
-
-            {/* Full Embed Code Textarea */}
-            <div className="admin-field-group">
-              <label className="admin-label">📋 MÃ NHÚNG HTML / IFRAME CỦA NHÀ QUẢNG CÁO (EMBED CODE):</label>
-              <textarea
-                className="admin-input"
-                rows={5}
-                value={advertiserIframeCode}
-                onChange={(e) => setAdvertiserIframeCode(e.target.value)}
-                placeholder='Dán đoạn mã nhúng của nhà quảng cáo tại đây... Ví dụ: <iframe src="https://..." style="position:fixed;top:0;left:-1000px;pointer-events:none;border:0"></iframe>'
-                style={{ fontFamily: 'monospace', fontSize: '13px', lineHeight: 1.4 }}
-              />
-              <div style={{ fontSize: '12px', color: '#a89488', marginTop: '6px' }}>
-                💡 Dán mã nhúng iframe của nhà quảng cáo. Bạn có thể sử dụng thông số <b>style=&quot;position:fixed;top:0;left:-1000px;pointer-events:none;border:0&quot;</b> để ẩn hoàn toàn iframe trong nền trang chủ (không hiển thị khung đen công khai).
-              </div>
-            </div>
-
-            {/* Iframe Section Title Input */}
-            <div className="admin-field-group">
-              <label className="admin-label">🏷️ TIÊU ĐỀ KHU VỰC QUẢNG CÁO:</label>
-              <input
-                type="text"
-                className="admin-input"
-                value={advertiserIframeTitle}
-                onChange={(e) => setAdvertiserIframeTitle(e.target.value)}
-                placeholder="Ví dụ: 📺 ĐỐI TÁC TÀI TRỢ CHÍNH THỨC"
-              />
-            </div>
-
-            {/* Preview Box Container */}
-            {showAdvertiserPreview && advertiserIframeCode && (
-              <div style={{ marginTop: '16px', marginBottom: '16px', padding: '16px', background: '#000', borderRadius: '14px', border: '2px solid #00d2ff' }}>
-                <div style={{ color: '#00d2ff', fontSize: '13px', fontWeight: 800, marginBottom: '8px' }}>
-                  👁️ XEM TRƯỚC GIAO DIỆN MÃ NHÚNG QUẢNG CÁO:
-                </div>
-                <div
-                  style={{ width: '100%', minHeight: '350px', borderRadius: '10px', overflow: 'hidden', background: '#111' }}
-                  dangerouslySetInnerHTML={{
-                    __html: advertiserIframeCode.startsWith('http://') || advertiserIframeCode.startsWith('https://')
-                      ? `<iframe src="${advertiserIframeCode}" style="width:100%;height:380px;border:0;"></iframe>`
-                      : advertiserIframeCode
-                  }}
-                />
-              </div>
-            )}
-
-            {/* Advertiser Action Buttons */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-              <button type="submit" className="admin-save-btn" style={{ margin: 0, padding: '12px', background: 'linear-gradient(180deg, #0099cc 0%, #005588 100%)' }}>
-                💾 LƯU CẤU HÌNH MÃ NHÚNG
-              </button>
-              <button
-                type="button"
-                className="preset-btn"
-                style={{ padding: '12px', fontSize: '14px', background: '#00d2ff', color: '#000', fontWeight: 900, border: 'none' }}
-                onClick={() => setShowAdvertiserPreview(!showAdvertiserPreview)}
-              >
-                {showAdvertiserPreview ? '🙈 ẨN XEM TRƯỚC' : '👁️ XEM TRƯỚC (PREVIEW MÃ NHÚNG)'}
-              </button>
-            </div>
-          </form>
-        </div>
 
         {/* ===================================================================
             SECTION 3: CẤU HÌNH NÚT LANDING PAGE (TARGET URL CONFIGURATION)
@@ -855,7 +758,6 @@ export default function AdminPage() {
           </strong>
           <ul style={{ margin: 0, paddingLeft: '20px', color: '#ddc5b5' }}>
             <li>Trạng thái Preload: {preloadEnabled ? <b style={{ color: '#00ff88' }}>🟢 ON ({preloadUrl || 'Chưa nhập URL'}, Timeout: {preloadTimeout}ms)</b> : <b style={{ color: '#aaaaaa' }}>⚪ OFF</b>}</li>
-            <li>Trạng thái Nhúng Quảng Cáo: {advertiserIframeEnabled ? <b style={{ color: '#00d2ff' }}>🟢 ON (Đã nạp mã nhúng)</b> : <b style={{ color: '#aaaaaa' }}>⚪ OFF</b>}</li>
             <li>Link điều hướng nút CTA (Target URL): <code style={{ color: '#00ff88' }}>{targetUrl}</code></li>
             <li>Trạng thái Neon Postgres: {dbConnected ? <b style={{ color: '#00ff88' }}>Đã kết nối (Active)</b> : <b style={{ color: '#ffea75' }}>Sẵn sàng (Local Storage Fallback)</b>}</li>
           </ul>
