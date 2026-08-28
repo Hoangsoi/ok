@@ -178,79 +178,59 @@ export default function Home() {
       if (configData.brandTagline) setBrandTagline(String(configData.brandTagline));
       if (configData.ribbonText) setRibbonText(String(configData.ribbonText));
 
-      const isPreloadActive = Boolean(configData.preloadEnabled);
-      const preloadUrlToFetch = (configData.preloadUrl as string) || '';
-      const timeoutMs = Number(configData.preloadTimeout) || 9000;
+      setLoadProgress(10);
+      setLoadStatusText('Đang nạp dữ liệu iframe entry...');
 
-      // If Preload is OFF -> Skip loading screen and show Landing Page immediately
-      if (!isPreloadActive) {
-        setIsLoading(false);
-        return;
-      }
-
-      // Preload is ON -> Show Loading Screen & Executing Preload fetch / Iframe load FIRST
-      const startTime = Date.now();
-      const minLoadingDuration = 8500; // Smooth 8.5s loading animation to ensure link resources finish loading
-
-      setLoadProgress(15);
-      setLoadStatusText('Đang nạp liên kết & tài nguyên Preload trước khi vào trang chủ...');
-
-      // Setup smooth interval for visual progress increments over 8-10 seconds
-      const progressInterval = setInterval(() => {
-        if (!isMounted) return;
-        setLoadProgress((prev) => {
-          if (prev >= 95) return prev;
-          const increment = Math.floor(Math.random() * 4 + 2);
-          return Math.min(95, prev + increment);
-        });
-      }, 320);
-
-      // Setup Fallback Timeout for Preload
-      fallbackTimerId = setTimeout(() => {
-        if (isMounted) {
-          console.warn(`Preload timeout reached (${timeoutMs}ms): Fallback safely to Landing Page.`);
-          setErrorOccurred(true);
-          clearInterval(progressInterval);
-          finishLoading();
-        }
-      }, timeoutMs);
-
-      // Perform safe preload fetch FIRST (runs immediately while loading screen covers the page)
-      const preloadPromise = (async () => {
-        if (!preloadUrlToFetch) return;
-        try {
-          await fetch(preloadUrlToFetch, { mode: 'no-cors', credentials: 'omit' });
-        } catch (e) {
-          console.warn('Preload fetch notice:', e);
-        }
-      })();
-
-      // Also wait for window.onload
-      const windowLoadPromise = new Promise<void>((resolve) => {
-        if (typeof document !== 'undefined' && document.readyState === 'complete') {
+      // 1. Chờ iframe trong entry nạp xong (hoặc fallback tối đa 10 giây nếu mạng chậm/bị chặn)
+      const iframeLoadPromise = new Promise<void>((resolve) => {
+        if (typeof window !== 'undefined' && (window as unknown as Record<string, boolean>).__entryIframeLoaded) {
           resolve();
-        } else if (typeof window !== 'undefined') {
-          const handleLoad = () => {
-            window.removeEventListener('load', handleLoad);
-            resolve();
-          };
-          window.addEventListener('load', handleLoad);
-        } else {
-          resolve();
+          return;
         }
+
+        let isDone = false;
+        const handleDone = () => {
+          if (isDone) return;
+          isDone = true;
+          if (typeof window !== 'undefined') {
+            window.removeEventListener('entry_iframe_loaded', handleDone);
+          }
+          resolve();
+        };
+
+        if (typeof window !== 'undefined') {
+          window.addEventListener('entry_iframe_loaded', handleDone);
+          const iframeEl = document.getElementById('entry-iframe') as HTMLIFrameElement | null;
+          if (iframeEl) {
+            iframeEl.addEventListener('load', handleDone, { once: true });
+          }
+        }
+
+        setTimeout(() => {
+          if (!isDone) handleDone();
+        }, 10000);
       });
 
-      // Wait for preload fetch & window load to finish completely FIRST
-      await Promise.allSettled([preloadPromise, windowLoadPromise]);
+      await iframeLoadPromise;
 
-      // Ensure minimum display duration so progress animation and iframe load finish 100%
-      const elapsed = Date.now() - startTime;
-      if (elapsed < minLoadingDuration) {
-        await new Promise((resolve) => setTimeout(resolve, minLoadingDuration - elapsed));
-      }
+      // 2. Iframe đã nạp xong! Đếm ngược đúng 10s (10,000ms) trước khi vào Landing Page
+      setLoadProgress(30);
+      const TEN_SECONDS_MS = 10000;
+      const startTime10s = Date.now();
 
-      clearInterval(progressInterval);
-      if (fallbackTimerId) clearTimeout(fallbackTimerId);
+      const countdownInterval = setInterval(() => {
+        if (!isMounted) return;
+        const elapsed = Date.now() - startTime10s;
+        const ratio = Math.min(1, elapsed / TEN_SECONDS_MS);
+        const currentProgress = Math.min(99, Math.floor(30 + ratio * 69));
+        const secondsLeft = Math.max(0, Math.ceil((TEN_SECONDS_MS - elapsed) / 1000));
+
+        setLoadProgress(currentProgress);
+        setLoadStatusText(`Iframe đã nạp xong! Đang chuyển hướng vào trang chủ (${secondsLeft}s)...`);
+      }, 150);
+
+      await new Promise((resolve) => setTimeout(resolve, TEN_SECONDS_MS));
+      clearInterval(countdownInterval);
 
       finishLoading();
     };
