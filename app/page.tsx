@@ -452,6 +452,13 @@ export default function Home() {
                 {eventTitle}
               </h1>
 
+              <div className="event-highlight-money-banner">
+                <span className="money-icon">💰</span>
+                <span className="money-text">
+                  Tổng tiền hoàn thưởng cao nhất lên đến <strong className="money-amount">1.000.000 VNĐ!</strong>
+                </span>
+              </div>
+
               <div className="top-event-subtitle">
                 {eventSubtitle}
               </div>

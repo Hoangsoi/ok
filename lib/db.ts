@@ -180,6 +180,23 @@ export async function initDatabase(): Promise<boolean> {
           ${DEFAULT_CONFIG.ctaButtonText}, 'admin123', true
         );
       `;
+    } else {
+      // Sync DB row 1 with new campaign text defaults if it contains old event text
+      await sql`
+        UPDATE site_config
+        SET
+          top_ticker_text = ${DEFAULT_CONFIG.topTickerText},
+          event_badge_text = ${DEFAULT_CONFIG.eventBadgeText},
+          event_title = ${DEFAULT_CONFIG.eventTitle},
+          event_subtitle = ${DEFAULT_CONFIG.eventSubtitle},
+          event_warning_text = ${DEFAULT_CONFIG.eventWarningText},
+          event_button_text = ${DEFAULT_CONFIG.eventButtonText}
+        WHERE id = 1 AND (
+          top_ticker_text LIKE '%KHUYẾN MÃI LỚN NHẤT NĂM%' OR
+          event_title LIKE '%500.000 VNĐ Tiền Thưởng Độc Quyền%' OR
+          event_subtitle LIKE '%Đây không phải chương trình nạp tiền%'
+        );
+      `;
     }
 
     const existingUser = await sql`SELECT username FROM admin_users WHERE username = 'admin';`;
