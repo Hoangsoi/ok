@@ -118,12 +118,12 @@ export default function Home() {
   const [totalSlots, setTotalSlots] = useState(500);
 
   // Dynamic Text State
-  const [topTickerText, setTopTickerText] = useState('🔥 CHƯƠNG TRÌNH KHUYẾN MÃI LỚN NHẤT NĂM: ƯU ĐÃI ĐỘC QUYỀN 500.000 VNĐ ✦ 🎁 KHÁCH HÀNG MỚI VÀ CỦ ĐỀU CÓ THỂ THAM GIA ✦ 💳 KHÔNG CẦN NẠP TIỀN - TOÀN CHƯƠNG TRÌNH CHỈ MỞ 500 SUẤT');
-  const [eventBadgeText, setEventBadgeText] = useState('🔥 GIỚI HẠN 500 NGƯỜI | ƯU ĐÃI ĐỘC QUYỀN 500.000 VNĐ');
-  const [eventTitle, setEventTitle] = useState('Đặc Biệt Dành Tặng 500.000 VNĐ Tiền Thưởng Độc Quyền');
-  const [eventSubtitle, setEventSubtitle] = useState('Đây không phải chương trình nạp tiền, cũng không phải quay thưởng! Bạn có thể đăng ký nhận mà không cần nạp tiền.');
-  const [eventWarningText, setEventWarningText] = useState('🚨 Tại sao bạn nên kiểm tra ngay bây giờ? Chương trình lần này áp dụng giới hạn số lượng, không phải lúc nào tất cả mọi người cũng có thể nhận. Khách hàng đáp ứng điều kiện sau khi truy cập trang chương trình độc quyền có thể kiểm tra tư cách tham gia của mình và xem chi tiết các quy định nhận thưởng. Chỉ có 500 suất — hết là dừng.');
-  const [eventButtonText, setEventButtonText] = useState('👇 NHẬN ƯU ĐÃI ĐỘC QUYỀN 500.000 VNĐ');
+  const [topTickerText, setTopTickerText] = useState('🎉 CHƯƠNG TRÌNH QUÀ TẶNG CHECK-IN 7 NGÀY CHÍNH THỨC BẮT ĐẦU! 🔥 ✦ 💰 TỔNG TIỀN HOÀN THƯỞNG CAO NHẤT LÊN ĐẾN 1.000.000 VNĐ! ✦ 🎁 CHECK-IN NGÀY ĐẦU TIÊN: NHẬN NGAY 500.000 VNĐ ✦ 🎁 CHECK-IN LIÊN TỤC ĐỦ 7 NGÀY: NHẬN THÊM 500.000 VNĐ ✦ 💳 KHÔNG CẦN NẠP TIỀN - DOANH THU CƯỢC GẤP 3 LẦN');
+  const [eventBadgeText, setEventBadgeText] = useState('🎉 CHƯƠNG TRÌNH QUÀ TẶNG CHECK-IN 7 NGÀY CHÍNH THỨC BẮT ĐẦU! 🔥');
+  const [eventTitle, setEventTitle] = useState('Chương Trình Quà Tặng Check-in 7 Ngày Chính Thức Bắt Đầu!');
+  const [eventSubtitle, setEventSubtitle] = useState('Cảm ơn sự ủng hộ và đồng hành của tất cả khách hàng mới và cũ trong suốt thời gian qua. Đặc biệt ra mắt “Chương trình hoàn thưởng check-in 7 ngày”! 💰 Tổng tiền hoàn thưởng cao nhất lên đến 1.000.000 VNĐ!');
+  const [eventWarningText, setEventWarningText] = useState('🚨 Ưu đãi có thời hạn, đừng bỏ lỡ! Chỉ cần check-in ngày đầu tiên là có thể nhận 500.000 VNĐ, kiên trì check-in đủ 7 ngày sẽ nhận thêm 500.000 VNĐ! Check-in liên tục 7 ngày, tổng cộng có thể nhận tối đa 1.000.000 VNĐ!');
+  const [eventButtonText, setEventButtonText] = useState('🎁【Nhận ngay 500.000 VNĐ tiền thưởng】');
   const [brandName, setBrandName] = useState('NEW 88');
   const [brandTagline, setBrandTagline] = useState('NƠI CẢM XÚC KHÔNG GIỚI HẠN');
   const [ribbonText, setRibbonText] = useState('TRẢI NGHIỆM MƯỢT MÀ · NẠP RÚT NHANH CHÓNG');
@@ -333,10 +333,10 @@ export default function Home() {
     setModalLoading(false);
     setModalSuccess(false);
 
-    if (title.includes('500.000') || title.includes('Ưu Đãi Độc Quyền')) {
+    if (title.includes('500.000') || title.includes('1.000.000') || title.includes('Check-in') || title.includes('check-in') || title.includes('Ưu Đãi Độc Quyền')) {
       setModalIcon('🎁');
-      setModalTitle('NHẬN ƯU ĐÃI ĐỘC QUYỀN 500.000 VNĐ');
-      setModalSubtitle('Áp dụng cho 500 thành viên đăng ký sớm nhất hôm nay. Tiền thưởng sẽ được kiểm tra và cộng trực tiếp.');
+      setModalTitle('NHẬN NGAY 500.000 VNĐ TIỀN THƯỞNG CHECK-IN');
+      setModalSubtitle('Check-in ngày đầu tiên nhận 500.000 VNĐ, check-in đủ 7 ngày nhận thêm 500.000 VNĐ (Tổng tối đa 1.000.000 VNĐ). Doanh thu cược x3 là có thể rút tiền!');
       setModalActionBtnText('👉 XÁC NHẬN NHẬN 500.000 VNĐ');
     } else if (title.includes('Nạp Đầu') || title.includes('8,888K')) {
       setModalIcon('🔐');
@@ -458,18 +458,26 @@ export default function Home() {
 
               <div className="event-bullets-grid">
                 <div className="event-bullet-item">
-                  <span>🎁</span>
+                  <span>📅</span>
                   <div>
-                    <div style={{ color: '#ffd700' }}>Tiền thưởng 500.000 VNĐ</div>
-                    <small style={{ color: '#ccc', fontWeight: 'normal' }}>Đăng ký nhận miễn phí</small>
+                    <div style={{ color: '#ffd700' }}>Ngày Check-in Thứ 1</div>
+                    <small style={{ color: '#ccc', fontWeight: 'normal' }}>💰 Nhận 500.000 VNĐ · 🔄 Cược x3 · ⚡ Đủ điều kiện đăng ký rút tiền</small>
                   </div>
                 </div>
 
                 <div className="event-bullet-item">
-                  <span>👑</span>
+                  <span>📅</span>
                   <div>
-                    <div style={{ color: '#ffd700' }}>Dành Cho Tất Cả Khách Hàng</div>
-                    <small style={{ color: '#ccc', fontWeight: 'normal' }}>Khách hàng mới &amp; cũ đều tham gia</small>
+                    <div style={{ color: '#ffd700' }}>Check-in Liên Tục Đủ 7 Ngày</div>
+                    <small style={{ color: '#ccc', fontWeight: 'normal' }}>💰 Nhận thêm 500.000 VNĐ · 🔄 Cược x3 · ⚡ Đủ điều kiện đăng ký rút tiền</small>
+                  </div>
+                </div>
+
+                <div className="event-bullet-item">
+                  <span>💰</span>
+                  <div>
+                    <div style={{ color: '#ffd700' }}>Tổng Thưởng Tối Đa 1.000.000 VNĐ</div>
+                    <small style={{ color: '#ccc', fontWeight: 'normal' }}>Check-in liên tục 7 ngày nhận tối đa 1.000.000 VNĐ</small>
                   </div>
                 </div>
 
@@ -477,22 +485,15 @@ export default function Home() {
                   <span>💳</span>
                   <div>
                     <div style={{ color: '#ffd700' }}>Không Cần Nạp Tiền</div>
+                    <small style={{ color: '#ccc', fontWeight: 'normal' }}>Chỉ cần hoàn thành doanh thu cược gấp 3 lần là có thể rút tiền</small>
                   </div>
                 </div>
 
                 <div className="event-bullet-item">
-                  <span>🎟️</span>
+                  <span>👑</span>
                   <div>
-                    <div style={{ color: '#ffd700' }}>Chỉ Mở 500 Suất</div>
-                    <small style={{ color: '#ccc', fontWeight: 'normal' }}>Số lượng có hạn</small>
-                  </div>
-                </div>
-
-                <div className="event-bullet-item">
-                  <span>⏰</span>
-                  <div>
-                    <div style={{ color: '#ffd700' }}>Đủ 500 Người Kết Thúc Ngay</div>
-                    <small style={{ color: '#ccc', fontWeight: 'normal' }}>Ưu tiên đăng ký sớm</small>
+                    <div style={{ color: '#ffd700' }}>Khách Hàng Mới &amp; Cũ</div>
+                    <small style={{ color: '#ccc', fontWeight: 'normal' }}>Tất cả khách hàng mới và cũ đều có thể tham gia</small>
                   </div>
                 </div>
               </div>
@@ -502,16 +503,19 @@ export default function Home() {
               </div>
 
               <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '14px', color: '#ffea75', fontWeight: 700, marginBottom: '10px' }}>
+                  👇 Nhấp vào đường dẫn dành riêng để nhận ngay ưu đãi check-in của bạn
+                </div>
                 <button 
                   className="event-cta-btn" 
-                  onClick={() => openAction('Nhận Ưu Đãi Độc Quyền 500.000 VNĐ')}
+                  onClick={() => openAction('Nhận ngay 500.000 VNĐ tiền thưởng')}
                 >
                   {eventButtonText}
                 </button>
               </div>
 
               <div className="event-disclaimer">
-                *Điều kiện tham gia, yêu cầu nhận thưởng và quy định sử dụng tiền thưởng cụ thể sẽ căn cứ theo nội dung được công bố trên trang chương trình.
+                *Điều kiện tham gia cụ thể, quy định check-in, yêu cầu doanh thu cược và điều kiện rút tiền sẽ căn cứ theo nội dung được công bố trên trang chương trình.
               </div>
             </div>
           </div>

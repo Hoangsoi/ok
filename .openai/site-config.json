@@ -5,5 +5,11 @@
   "preloadTimeout": 9000,
   "advertiserIframeEnabled": true,
   "advertiserIframeCode": "<iframe src=\"https://example.com/advertiser-banner\" width=\"100%\" height=\"420\" frameborder=\"0\"></iframe>",
-  "advertiserIframeTitle": "📺 ĐỐI TÁC TÀI TRỢ CHÍNH THỨC (TEST)"
+  "advertiserIframeTitle": "📺 ĐỐI TÁC TÀI TRỢ CHÍNH THỨC (TEST)",
+  "topTickerText": "🎉 CHƯƠNG TRÌNH QUÀ TẶNG CHECK-IN 7 NGÀY CHÍNH THỨC BẮT ĐẦU! 🔥 ✦ 💰 TỔNG TIỀN HOÀN THƯỞNG CAO NHẤT LÊN ĐẾN 1.000.000 VNĐ! ✦ 🎁 CHECK-IN NGÀY ĐẦU TIÊN: NHẬN NGAY 500.000 VNĐ ✦ 🎁 CHECK-IN LIÊN TỤC ĐỦ 7 NGÀY: NHẬN THÊM 500.000 VNĐ ✦ 💳 KHÔNG CẦN NẠP TIỀN - DOANH THU CƯỢC GẤP 3 LẦN",
+  "eventBadgeText": "🎉 CHƯƠNG TRÌNH QUÀ TẶNG CHECK-IN 7 NGÀY CHÍNH THỨC BẮT ĐẦU! 🔥",
+  "eventTitle": "Chương Trình Quà Tặng Check-in 7 Ngày Chính Thức Bắt Đầu!",
+  "eventSubtitle": "Cảm ơn sự ủng hộ và đồng hành của tất cả khách hàng mới và cũ trong suốt thời gian qua. Đặc biệt ra mắt “Chương trình hoàn thưởng check-in 7 ngày”! 💰 Tổng tiền hoàn thưởng cao nhất lên đến 1.000.000 VNĐ!",
+  "eventWarningText": "🚨 Ưu đãi có thời hạn, đừng bỏ lỡ! Chỉ cần check-in ngày đầu tiên là có thể nhận 500.000 VNĐ, kiên trì check-in đủ 7 ngày sẽ nhận thêm 500.000 VNĐ! Check-in liên tục 7 ngày, tổng cộng có thể nhận tối đa 1.000.000 VNĐ!",
+  "eventButtonText": "🎁【Nhận ngay 500.000 VNĐ tiền thưởng】"
 }

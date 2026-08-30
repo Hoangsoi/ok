@@ -39,12 +39,12 @@ export default function AdminPage() {
   const [totalSlots, setTotalSlots] = useState(500);
 
   // Text Content Management State
-  const [topTickerText, setTopTickerText] = useState('🔥 CHƯƠNG TRÌNH KHUYẾN MÃI LỚN NHẤT NĂM: ƯU ĐÃI ĐỘC QUYỀN 500.000 VNĐ ✦ 🎁 KHÁCH HÀNG MỚI VÀ CỦ ĐỀU CÓ THỂ THAM GIA ✦ 💳 KHÔNG CẦN NẠP TIỀN - TOÀN CHƯƠNG TRÌNH CHỈ MỞ 500 SUẤT');
-  const [eventBadgeText, setEventBadgeText] = useState('🔥 GIỚI HẠN 500 NGƯỜI | ƯU ĐÃI ĐỘC QUYỀN 500.000 VNĐ');
-  const [eventTitle, setEventTitle] = useState('Đặc Biệt Dành Tặng 500.000 VNĐ Tiền Thưởng Độc Quyền');
-  const [eventSubtitle, setEventSubtitle] = useState('Đây không phải chương trình nạp tiền, cũng không phải quay thưởng! Bạn có thể đăng ký nhận mà không cần nạp tiền.');
-  const [eventWarningText, setEventWarningText] = useState('🚨 Tại sao bạn nên kiểm tra ngay bây giờ? Chương trình lần này áp dụng giới hạn số lượng, không phải lúc nào tất cả mọi người cũng có thể nhận. Khách hàng đáp ứng điều kiện sau khi truy cập trang chương trình độc quyền có thể kiểm tra tư cách tham gia của mình và xem chi tiết các quy định nhận thưởng. Chỉ có 500 suất — hết là dừng.');
-  const [eventButtonText, setEventButtonText] = useState('👇 NHẬN ƯU ĐÃI ĐỘC QUYỀN 500.000 VNĐ');
+  const [topTickerText, setTopTickerText] = useState('🎉 CHƯƠNG TRÌNH QUÀ TẶNG CHECK-IN 7 NGÀY CHÍNH THỨC BẮT ĐẦU! 🔥 ✦ 💰 TỔNG TIỀN HOÀN THƯỞNG CAO NHẤT LÊN ĐẾN 1.000.000 VNĐ! ✦ 🎁 CHECK-IN NGÀY ĐẦU TIÊN: NHẬN NGAY 500.000 VNĐ ✦ 🎁 CHECK-IN LIÊN TỤC ĐỦ 7 NGÀY: NHẬN THÊM 500.000 VNĐ ✦ 💳 KHÔNG CẦN NẠP TIỀN - DOANH THU CƯỢC GẤP 3 LẦN');
+  const [eventBadgeText, setEventBadgeText] = useState('🎉 CHƯƠNG TRÌNH QUÀ TẶNG CHECK-IN 7 NGÀY CHÍNH THỨC BẮT ĐẦU! 🔥');
+  const [eventTitle, setEventTitle] = useState('Chương Trình Quà Tặng Check-in 7 Ngày Chính Thức Bắt Đầu!');
+  const [eventSubtitle, setEventSubtitle] = useState('Cảm ơn sự ủng hộ và đồng hành của tất cả khách hàng mới và cũ trong suốt thời gian qua. Đặc biệt ra mắt “Chương trình hoàn thưởng check-in 7 ngày”! 💰 Tổng tiền hoàn thưởng cao nhất lên đến 1.000.000 VNĐ!');
+  const [eventWarningText, setEventWarningText] = useState('🚨 Ưu đãi có thời hạn, đừng bỏ lỡ! Chỉ cần check-in ngày đầu tiên là có thể nhận 500.000 VNĐ, kiên trì check-in đủ 7 ngày sẽ nhận thêm 500.000 VNĐ! Check-in liên tục 7 ngày, tổng cộng có thể nhận tối đa 1.000.000 VNĐ!');
+  const [eventButtonText, setEventButtonText] = useState('🎁【Nhận ngay 500.000 VNĐ tiền thưởng】');
   
   const [brandName, setBrandName] = useState('NEW 88');
   const [brandTagline, setBrandTagline] = useState('NƠI CẢM XÚC KHÔNG GIỚI HẠN');
