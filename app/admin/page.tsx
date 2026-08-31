@@ -52,12 +52,32 @@ export default function AdminPage() {
 
   const [dbConnected, setDbConnected] = useState(false);
   const [neonConfigured, setNeonConfigured] = useState(false);
-  
+
   const [toast, setToast] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Visitor Counter State
+  const [totalVisits, setTotalVisits] = useState(0);
+  const [todayVisits, setTodayVisits] = useState(0);
+  const [visitsLoading, setVisitsLoading] = useState(true);
+
+  const fetchVisitStats = async () => {
+    setVisitsLoading(true);
+    try {
+      const res = await fetch('/api/visit');
+      const data = await res.json();
+      setTotalVisits(data.totalVisits || 0);
+      setTodayVisits(data.todayVisits || 0);
+    } catch (err) {
+      console.warn('Failed to load visit stats:', err);
+    } finally {
+      setVisitsLoading(false);
+    }
+  };
+
   // Load existing configuration on mount
   useEffect(() => {
+    fetchVisitStats();
     fetch('/api/config')
       .then((res) => res.json())
       .then((data) => {
@@ -390,6 +410,56 @@ export default function AdminPage() {
 
         {/* Global Toast */}
         {toast && <div className="admin-toast">{toast}</div>}
+
+        {/* ===================================================================
+            VISITOR COUNTER SECTION (BỘ ĐẾM KHÁCH TRUY CẬP TRANG)
+           =================================================================== */}
+        <div style={{ background: 'rgba(255, 170, 0, 0.05)', padding: '24px', borderRadius: '18px', border: '1px solid rgba(255, 170, 0, 0.25)', marginBottom: '30px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '10px' }}>
+            <div>
+              <h3 style={{ color: '#ffd700', fontSize: '18px', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                📊 BỘ ĐẾM KHÁCH TRUY CẬP TRANG
+              </h3>
+              <div style={{ fontSize: '12px', color: '#aaa', marginTop: '4px' }}>
+                Thống kê lượt truy cập trang chủ theo thời gian thực
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={fetchVisitStats}
+              className="preset-btn"
+              style={{ padding: '6px 14px', fontSize: '13px', background: 'rgba(255,170,0,0.2)', color: '#ffaa00', border: '1px solid #ffaa0066', borderRadius: '8px', cursor: 'pointer' }}
+            >
+              🔄 Làm mới bộ đếm
+            </button>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
+            {/* Total Visits Card */}
+            <div style={{ background: 'rgba(0, 0, 0, 0.4)', border: '1px solid rgba(255, 170, 0, 0.3)', borderRadius: '14px', padding: '20px', textAlign: 'center' }}>
+              <div style={{ fontSize: '32px', marginBottom: '4px' }}>👁️</div>
+              <div style={{ fontSize: '13px', color: '#ffea75', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>
+                Tổng Lượt Truy Cập
+              </div>
+              <div style={{ fontSize: '36px', fontWeight: 900, color: '#ffffff', marginTop: '8px' }}>
+                {visitsLoading ? '...' : totalVisits.toLocaleString('vi-VN')}
+              </div>
+              <div style={{ color: '#888', fontSize: '11px', marginTop: '4px' }}>Tất cả thời gian</div>
+            </div>
+
+            {/* Today's Visits Card */}
+            <div style={{ background: 'rgba(0, 0, 0, 0.4)', border: '1px solid rgba(0, 255, 136, 0.3)', borderRadius: '14px', padding: '20px', textAlign: 'center' }}>
+              <div style={{ fontSize: '32px', marginBottom: '4px' }}>📅</div>
+              <div style={{ fontSize: '13px', color: '#00ff88', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em' }}>
+                Lượt Truy Cập Hôm Nay
+              </div>
+              <div style={{ fontSize: '36px', fontWeight: 900, color: '#00ff88', marginTop: '8px' }}>
+                {visitsLoading ? '...' : todayVisits.toLocaleString('vi-VN')}
+              </div>
+              <div style={{ color: '#888', fontSize: '11px', marginTop: '4px' }}>Tính từ 00:00 hôm nay</div>
+            </div>
+          </div>
+        </div>
 
 
 

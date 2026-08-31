@@ -149,6 +149,16 @@ export async function initDatabase(): Promise<boolean> {
       );
     `;
 
+    // 3. visitor_logs table
+    await sql`
+      CREATE TABLE IF NOT EXISTS visitor_logs (
+        id SERIAL PRIMARY KEY,
+        user_agent TEXT,
+        ip_address VARCHAR(50),
+        visited_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+
     // 3. admin_users table
     await sql`
       CREATE TABLE IF NOT EXISTS admin_users (
@@ -377,3 +387,93 @@ export async function recordClickLog(targetUrl: string, actionName?: string, use
     return false;
   }
 }
+
+export interface VisitStats {
+  totalVisits: number;
+  todayVisits: number;
+}
+
+const VISITS_FILE = path.join(process.cwd(), '.openai', 'visitor-stats.json');
+
+interface LocalVisitEntry {
+  timestamp: string;
+  ip: string;
+}
+
+export async function recordVisitLog(userAgent?: string, ipAddress?: string): Promise<boolean> {
+  const sql = getDbClient();
+  if (sql) {
+    try {
+      await initDatabase();
+      await sql`
+        INSERT INTO visitor_logs (user_agent, ip_address)
+        VALUES (${userAgent || 'Unknown'}, ${ipAddress || 'Client'});
+      `;
+    } catch (err) {
+      console.warn('Failed to record visit log in Neon DB:', err);
+    }
+  }
+
+  // Also maintain local JSON fallback
+  try {
+    let logs: LocalVisitEntry[] = [];
+    try {
+      const data = await fs.readFile(VISITS_FILE, 'utf-8');
+      logs = JSON.parse(data);
+    } catch {
+      logs = [];
+    }
+
+    const nowIso = new Date().toISOString();
+    logs.push({ timestamp: nowIso, ip: ipAddress || 'Client' });
+
+    // Keep last 10000 entries
+    if (logs.length > 10000) {
+      logs = logs.slice(logs.length - 10000);
+    }
+
+    await fs.mkdir(path.dirname(VISITS_FILE), { recursive: true });
+    await fs.writeFile(VISITS_FILE, JSON.stringify(logs, null, 2), 'utf-8');
+  } catch (err) {
+    console.error('Failed to write local visit stats:', err);
+  }
+
+  return true;
+}
+
+export async function getVisitStats(): Promise<VisitStats> {
+  const sql = getDbClient();
+  if (sql) {
+    try {
+      await initDatabase();
+      const totalRes = await sql`SELECT COUNT(*)::int AS count FROM visitor_logs;`;
+      const todayRes = await sql`
+        SELECT COUNT(*)::int AS count FROM visitor_logs
+        WHERE visited_at >= CURRENT_DATE;
+      `;
+      const dbTotal = totalRes[0]?.count ?? 0;
+      const dbToday = todayRes[0]?.count ?? 0;
+
+      if (dbTotal > 0 || dbToday > 0) {
+        return { totalVisits: dbTotal, todayVisits: dbToday };
+      }
+    } catch (err) {
+      console.warn('Failed to fetch visit stats from DB:', err);
+    }
+  }
+
+  // Fallback to local JSON file
+  try {
+    const data = await fs.readFile(VISITS_FILE, 'utf-8');
+    const logs: LocalVisitEntry[] = JSON.parse(data);
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    const totalVisits = logs.length;
+    const todayVisits = logs.filter((log) => log.timestamp && log.timestamp.startsWith(todayStr)).length;
+
+    return { totalVisits, todayVisits };
+  } catch {
+    return { totalVisits: 0, todayVisits: 0 };
+  }
+}
+

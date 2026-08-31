@@ -99,3 +99,12 @@ CREATE TABLE IF NOT EXISTS click_logs (
   ip_address VARCHAR(50),
   clicked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- 7. Visitor Logs Table
+CREATE TABLE IF NOT EXISTS visitor_logs (
+  id SERIAL PRIMARY KEY,
+  user_agent TEXT,
+  ip_address VARCHAR(50),
+  visited_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+

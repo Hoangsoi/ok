@@ -153,6 +153,9 @@ export default function Home() {
     };
 
     const performInit = async () => {
+      // Record visit log in background
+      fetch('/api/visit', { method: 'POST' }).catch(() => {});
+
       let configData: Record<string, unknown> = {};
 
       try {

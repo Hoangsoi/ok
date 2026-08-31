@@ -132,7 +132,18 @@ async function migrate() {
     `;
     console.log('✅ Created table: click_logs');
 
-    console.log('🎉 ALL 6 TABLES CREATED SUCCESSFULLY ON YOUR NEON POSTGRES DATABASE!');
+    // 7. visitor_logs
+    await sql`
+      CREATE TABLE IF NOT EXISTS visitor_logs (
+        id SERIAL PRIMARY KEY,
+        user_agent TEXT,
+        ip_address VARCHAR(50),
+        visited_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+    console.log('✅ Created table: visitor_logs');
+
+    console.log('🎉 ALL 7 TABLES CREATED SUCCESSFULLY ON YOUR NEON POSTGRES DATABASE!');
   } catch (error) {
     console.error('❌ Migration failed:', error);
   }
