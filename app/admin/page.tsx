@@ -385,7 +385,7 @@ export default function AdminPage() {
               <span>⚙️</span> Trang Quản Trị Landing Page
             </h1>
             <div style={{ fontSize: '12px', marginTop: '4px', color: dbConnected ? '#00ff88' : '#ffaa00' }}>
-              {dbConnected ? '🐘 Cơ sở dữ liệu: Neon Postgres (Đã kết nối)' : neonConfigured ? '⚡ Đang kiểm tra Neon DB...' : '💾 Cơ sở dữ liệu: Local Storage & JSON Fallback'}
+              {dbConnected ? '(Đã kết nối)' : neonConfigured ? '⚡ Đang kiểm tra...' : '💾 Local Storage & JSON Fallback'}
             </div>
           </div>
           <div style={{ display: 'flex', gap: '10px' }}>
