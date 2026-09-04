@@ -69,6 +69,14 @@ export async function POST(request: Request) {
       updates.advertiserIframeTitle = String(body.advertiserIframeTitle).trim();
     }
 
+    if (body.entryIframeUrl !== undefined) {
+      updates.entryIframeUrl = String(body.entryIframeUrl).trim();
+    }
+
+    if (body.entryIframeCode !== undefined) {
+      updates.entryIframeCode = String(body.entryIframeCode).trim();
+    }
+
     if (body.remainingSlots !== undefined) updates.remainingSlots = Number(body.remainingSlots);
     if (body.totalSlots !== undefined) updates.totalSlots = Number(body.totalSlots);
     if (body.topTickerText !== undefined) updates.topTickerText = String(body.topTickerText);

